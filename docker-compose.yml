@@ -1,0 +1,46 @@
+# מצב פיתוח: docker compose up --build
+# שלושה קונטיינרים: mongo (מסד נתונים) | server (FastAPI, פורט 8000) | client (React+nginx, פורט 3000)
+name: focusflow-app
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db          # הנתונים נשמרים בין הרצות
+    ports:
+    - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  server:
+    image: focusflow-server:latest
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # בתוך Docker הכתובת היא שם השירות, לא localhost
+      MONGO_URL: mongodb://mongo:27017
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  client:
+    image: focusflow-client:latest
+    build: ./frontend
+    restart: unless-stopped
+    environment:
+      API_URL: http://localhost:8000   # כתובת השרת כפי שהדפדפן רואה אותה
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo_data:

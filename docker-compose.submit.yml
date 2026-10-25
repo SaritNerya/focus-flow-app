@@ -1,0 +1,42 @@
+# זה הקובץ שמגישים (משנים את שמו ל-docker-compose.yml ב-assignment3.zip).
+# רק image, בלי build: הבודק מושך תמונות ציבוריות ולא צריך את הקוד.
+# החליפו YOUR_DOCKERHUB_USER בשם המשתמש שלכם ב-Docker Hub (או ב-GHCR).
+name: focusflow-app
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  server:
+    image: YOUR_DOCKERHUB_USER/focusflow-server:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  client:
+    image: YOUR_DOCKERHUB_USER/focusflow-client:latest
+    restart: unless-stopped
+    environment:
+      API_URL: http://localhost:8000
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo_data:
