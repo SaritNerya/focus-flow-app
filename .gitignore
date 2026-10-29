@@ -5,3 +5,8 @@ __pycache__/
 *.pyc
 .venv/
 *.zip
+*.tsbuildinfo
+
+# קבצים שנוצרים אוטומטית ע"י frontend/scripts/copy-assets.mjs
+frontend/public/ort/
+frontend/public/mediapipe/

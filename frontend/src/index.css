@@ -48,3 +48,20 @@ table { width: 100%; border-collapse: collapse; }
 th, td { text-align: start; padding: .55rem .6rem; border-bottom: 1px solid var(--border); }
 
 @media (max-width: 800px) { .grid, .grid.wide-left { grid-template-columns: 1fr; } }
+
+/* ---------- סשן קשב ---------- */
+.consent { background: #f1f5ff; border: 1px solid #c9d8ff; border-radius: 10px; padding: .9rem; margin: .75rem 0; }
+.consent h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+.consent ul { margin: 0 0 .75rem; padding-inline-start: 1.1rem; }
+.preview { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; background: #000; transform: scaleX(-1); margin: .5rem 0; }
+.hidden { display: none; }
+.score-box { margin: .5rem 0 1rem; }
+.score-label { font-weight: 600; }
+.score-value { font-size: 3rem; font-weight: 800; line-height: 1.1; color: var(--ok); }
+.score-value.low { color: var(--danger); }
+.bar { height: 12px; background: #e3e8f2; border-radius: 99px; overflow: hidden; margin: .4rem 0 .75rem; }
+.bar > div { height: 100%; background: var(--ok); transition: width .4s; }
+.bar > div.low { background: var(--danger); }
+.warn { color: #8a5a00; background: #fff4d6; border-radius: 8px; padding: .5rem .7rem; font-weight: 500; }
+.alert-box { color: #7a1010; background: #fde4e4; border: 1px solid #f3b4b4; border-radius: 8px; padding: .6rem .8rem; font-weight: 600; }
+.end-btn { margin-top: .75rem; }
