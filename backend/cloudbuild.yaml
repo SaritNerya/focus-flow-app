@@ -1,0 +1,7 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "Dockerfile.cloud", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+substitutions:
+  _IMAGE: europe-west1-docker.pkg.dev/focusflow-513721/focusflow/server:latest
