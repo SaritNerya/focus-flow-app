@@ -65,3 +65,18 @@ th, td { text-align: start; padding: .55rem .6rem; border-bottom: 1px solid var(
 .warn { color: #8a5a00; background: #fff4d6; border-radius: 8px; padding: .5rem .7rem; font-weight: 500; }
 .alert-box { color: #7a1010; background: #fde4e4; border: 1px solid #f3b4b4; border-radius: 8px; padding: .6rem .8rem; font-weight: 600; }
 .end-btn { margin-top: .75rem; }
+
+/* ---------- שדה סיסמה עם עין ---------- */
+.password-wrap { position: relative; }
+.password-wrap input { padding-inline-end: 2.6rem; }
+.eye-btn { position: absolute; inset-inline-end: .35rem; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
+.eye-btn:hover { color: var(--text); background: #eef1f7; }
+.eye-btn:focus-visible { outline: 3px solid #9db8ff; outline-offset: 1px; }
+
+/* ---------- ציון אחרון בהיסטוריה ---------- */
+.latest-score { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; margin-bottom: 1.25rem; border: 2px solid #c9d8ff; background: #f1f5ff; }
+.latest-score .score-value { font-size: 3.2rem; }
+.latest-score .score-label { font-size: 1.1rem; }
+.latest-score p { margin: .2rem 0 0; }
+tr.latest-row td { background: #f1f5ff; font-weight: 600; }
+.badge { display: inline-block; margin-inline-start: .4rem; padding: .05rem .5rem; border-radius: 99px; background: var(--primary); color: #fff; font-size: .75rem; font-weight: 600; }

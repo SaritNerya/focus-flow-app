@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # הגנה על חשבון
     max_login_attempts: int = 5
     lockout_minutes: int = 15
-    password_require_mixed: bool = False  # True = חובה אות וגם ספרה
+    password_require_mixed: bool = True  # True = חובה אות וגם ספרה
 
     # אופציונלי - האתר חייב לעבוד גם בלי זה
     gemini_api_key: str = ""

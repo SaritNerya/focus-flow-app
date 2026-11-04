@@ -21,7 +21,7 @@ def check_password(v: str) -> str:
         raise ValueError("הסיסמה קצרה מדי: נדרשים לפחות 8 תווים")
     if len(v.encode("utf-8")) > 72:
         raise ValueError("הסיסמה ארוכה מדי (עד 72 בתים)")
-    if settings.password_require_mixed and not (re.search(r"[A-Za-z]", v) and re.search(r"\d", v)):
+    if settings.password_require_mixed and not (re.search(r"[^\W\d_]", v) and re.search(r"\d", v)):
         raise ValueError("הסיסמה חייבת לכלול לפחות אות אחת וספרה אחת")
     return v
 
