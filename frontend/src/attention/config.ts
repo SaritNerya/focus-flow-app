@@ -1,5 +1,5 @@
 /** קבועי צינור הקשב. המודל אומן על 100 פריימים ב-10 לשנייה (כ-10 שניות). */
-export const MODEL_URL = "/models/v4_2.onnx";          // גרסה עם משקלי Attention (v4_2 ומעלה)
+export const MODEL_URL = "/models/v4_7.onnx";          // גרסה עם משקלי Attention (v4_2 ומעלה)
 export const FACE_MODEL_URL = "/models/face_landmarker.task";
 export const MEDIAPIPE_WASM_PATH = "/mediapipe/wasm";
 export const ORT_WASM_PATH = "/ort/";

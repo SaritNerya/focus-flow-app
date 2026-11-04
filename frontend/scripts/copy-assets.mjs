@@ -1,7 +1,7 @@
 // רץ אוטומטית לפני `npm run dev` ו-`npm run build` (prebuild / predev).
 // 1. מעתיק את קבצי ה-WASM של MediaPipe ושל onnxruntime-web מ-node_modules אל public/
 // 2. מוריד פעם אחת את face_landmarker.task (אם חסר) ל-public/models/
-// 3. מוודא שמודל הקשב (v4_2.onnx) קיים
+// 3. מוודא שמודל הקשב (v4_7.onnx) קיים
 import { cpSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,9 +37,9 @@ if (!existsSync(facePath)) {
   }
 }
 
-const attention = join(modelsDir, "v4_2.onnx");
+const attention = join(modelsDir, "v4_7.onnx");
 if (!existsSync(attention) || statSync(attention).size < 1_000_000) {
-  console.error(`\n[שגיאה] חסר מודל הקשב. העתיקו את v4_2.onnx אל:\n  ${attention}\n`);
+  console.error(`\n[שגיאה] חסר מודל הקשב. העתיקו את v4_7.onnx אל:\n  ${attention}\n`);
   process.exit(1);
 }
 console.log("assets OK");
