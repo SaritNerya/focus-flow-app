@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 
 from .errors import ApiError
 from .schemas import ContentIn
-from .web_fetch import fetch_page_text
+from .web_fetch import fetch_page
 
 SUPPORTED = ("youtube", "text", "web")
 YT_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
@@ -54,5 +54,5 @@ async def prepare_content(data: ContentIn) -> dict:
         return {"type": "text", "title": data.title, "source": src, "text": src}
 
     # web
-    page_title, text = await fetch_page_text(src)
-    return {"type": "web", "title": data.title or page_title, "source": src, "text": text}
+    page = await fetch_page(src)
+    return {"type": "web", "title": data.title or page.title, "source": src, "text": page.text, "embed_url": page.embed_url}

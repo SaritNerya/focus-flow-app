@@ -7,6 +7,7 @@ export type ContentType = "youtube" | "text" | "web";
 export interface ContentItem {
   id: string; title: string; type: ContentType; source: string; created_at: string;
   text?: string | null; youtube_id?: string | null;
+  embed_url?: string | null; // דף אינטרנט שמותר להציג בתוך האתר
 }
 export interface SessionSummary {
   id: string; content_id: string; content_title?: string | null; content_type?: string | null;

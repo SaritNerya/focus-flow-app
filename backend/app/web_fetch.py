@@ -2,6 +2,7 @@
 import asyncio
 import ipaddress
 import socket
+from typing import NamedTuple
 from urllib.parse import urljoin, urlparse
 
 import httpx
@@ -12,6 +13,31 @@ from .errors import ApiError
 MAX_BYTES = 2_000_000
 MAX_REDIRECTS = 3
 MIN_TEXT = 200
+
+
+class FetchedPage(NamedTuple):
+    title: str | None
+    text: str
+    embed_url: str | None  # הכתובת להצגה בתוך האתר, או None אם הדף חוסם הטמעה
+
+
+def frame_allowed(url: str, headers: httpx.Headers) -> bool:
+    """האם הדפדפן יסכים להציג את הדף בתוך iframe באתר שלנו.
+
+    אתרים חוסמים הטמעה בשתי דרכים: X-Frame-Options (DENY / SAMEORIGIN),
+    או Content-Security-Policy עם frame-ancestors שלא מתיר כל אתר.
+    בנוסף, דף http לא יוצג בתוך אתר https (Mixed content).
+    """
+    if urlparse(url).scheme != "https":
+        return False
+    if headers.get("x-frame-options", "").strip():
+        return False
+    for csp in headers.get_list("content-security-policy"):
+        for directive in csp.split(";"):
+            name, _, value = directive.strip().partition(" ")
+            if name.lower() == "frame-ancestors" and value.split() != ["*"]:
+                return False
+    return True
 
 
 def _bad(msg: str) -> ApiError:
@@ -34,8 +60,8 @@ async def _assert_public(url: str) -> None:
             raise _bad("הקישור מצביע על כתובת שאינה ציבורית")
 
 
-async def fetch_page_text(url: str) -> tuple[str | None, str]:
-    """מחזיר (כותרת הדף, טקסט נקי)."""
+async def fetch_page(url: str) -> FetchedPage:
+    """מוריד את הדף ומחזיר כותרת, טקסט נקי לתצוגת קריאה, וכתובת להטמעה (אם מותר)."""
     headers = {"User-Agent": "FocusFlowBot/1.0 (+reader view)"}
     async with httpx.AsyncClient(follow_redirects=False, timeout=8.0, headers=headers) as client:
         current = url
@@ -60,6 +86,7 @@ async def fetch_page_text(url: str) -> tuple[str | None, str]:
                         if len(body) > MAX_BYTES:
                             raise _bad("הדף גדול מדי")
                     encoding = resp.encoding or "utf-8"
+                    embed_url = current if frame_allowed(current, resp.headers) else None
             except httpx.HTTPError:
                 raise _bad("לא הצלחנו לגשת לדף. בדקו את הקישור ונסו שוב")
             break
@@ -77,4 +104,4 @@ async def fetch_page_text(url: str) -> tuple[str | None, str]:
         text = soup.get_text("\n", strip=True)
     if len(text) < MIN_TEXT:
         raise _bad("לא הצלחנו לחלץ מהדף טקסט לקריאה")
-    return title, text[:300_000]
+    return FetchedPage(title, text[:300_000], embed_url)

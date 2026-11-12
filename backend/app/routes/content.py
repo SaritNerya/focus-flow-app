@@ -22,6 +22,7 @@ def to_out(doc: dict, full: bool) -> ContentOut:
         created_at=db.as_utc(doc["created_at"]),
         text=doc.get("text") if full else None,
         youtube_id=doc.get("youtube_id"),
+        embed_url=doc.get("embed_url") if full else None,
     )
 
 

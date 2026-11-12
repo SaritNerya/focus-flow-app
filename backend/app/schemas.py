@@ -121,6 +121,7 @@ class ContentOut(BaseModel):
     created_at: datetime
     text: str | None = None        # בפריט בודד: הטקסט להצגה (text / web)
     youtube_id: str | None = None  # בפריט מסוג youtube
+    embed_url: str | None = None   # בפריט מסוג web: הדף המקורי להצגה בתוך האתר (אם האתר מתיר)
 
 
 # ---------- sessions ----------

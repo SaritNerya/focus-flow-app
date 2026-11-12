@@ -90,6 +90,43 @@ def test_ssrf_blocked(client):
     assert r.status_code == 422
 
 
+@pytest.mark.parametrize("url,headers,allowed", [
+    ("https://example.com/a", {}, True),
+    ("http://example.com/a", {}, False),                                    # Mixed content
+    ("https://example.com/a", {"X-Frame-Options": "SAMEORIGIN"}, False),
+    ("https://example.com/a", {"X-Frame-Options": "DENY"}, False),
+    ("https://example.com/a", {"Content-Security-Policy": "default-src 'self'; frame-ancestors 'self'"}, False),
+    ("https://example.com/a", {"Content-Security-Policy": "frame-ancestors *"}, True),
+    ("https://example.com/a", {"Content-Security-Policy": "default-src 'self'"}, True),
+])
+def test_frame_allowed(url, headers, allowed):
+    import httpx
+    from app.web_fetch import frame_allowed
+    assert frame_allowed(url, httpx.Headers(headers)) is allowed
+
+
+def test_web_item_embed_url(client, monkeypatch):
+    from app import content_service
+    from app.web_fetch import FetchedPage
+
+    pages = {
+        "https://open.example/p": FetchedPage("דף פתוח", "טקסט " * 60, "https://open.example/p"),
+        "https://closed.example/p": FetchedPage("דף חסום", "טקסט " * 60, None),
+    }
+
+    async def fake_fetch(url):
+        return pages[url]
+
+    monkeypatch.setattr(content_service, "fetch_page", fake_fetch)
+    register(client)
+    _, h = login(client)
+    for url, expected in (("https://open.example/p", "https://open.example/p"), ("https://closed.example/p", None)):
+        c = client.post("/api/content", headers=h, json={"type": "web", "title": "דף", "source": url}).json()
+        full = client.get(f"/api/content/{c['id']}", headers=h).json()
+        assert full["embed_url"] == expected
+        assert full["text"]  # תצוגת הקריאה זמינה תמיד
+
+
 def test_session_flow(client):
     register(client)
     _, h = login(client)

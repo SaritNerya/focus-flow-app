@@ -134,3 +134,17 @@
   .score-circle { width: 104px; height: 104px; font-size: 1.9rem; }
   .card { padding: var(--s4); }
 }
+
+/* ---------- דף אינטרנט: הדף המקורי בתוך התיבה (כמו בנגן YouTube) ---------- */
+.view-tabs { display: inline-flex; margin-bottom: var(--s3); border: var(--bw) solid var(--ink); }
+.view-tabs button {
+  min-height: 40px; padding: .4rem 1rem; font: 600 .95rem var(--font);
+  color: var(--ink); background: var(--surface); border: 0; cursor: pointer;
+  transition: background-color .15s;
+}
+.view-tabs button + button { border-inline-start: var(--bw) solid var(--ink); }
+.view-tabs button:hover { background: var(--yellow-soft); }
+.view-tabs button[aria-pressed="true"] { color: #fff; background: var(--blue); }
+.web-frame { height: 72vh; min-height: 420px; background: var(--surface); border: var(--bw) solid var(--ink); }
+.web-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+@media (max-width: 760px) { .web-frame { height: 65vh; min-height: 360px; } }
