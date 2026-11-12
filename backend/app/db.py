@@ -12,6 +12,7 @@ _db: AsyncIOMotorDatabase | None = None
 
 async def ensure_indexes(db) -> None:
     await db.users.create_index("email", unique=True)  # האימייל נשמר באותיות קטנות
+    await db.users.create_index("google_sub", unique=True, sparse=True)  # רק למשתמשים שהתחברו עם Google
     await db.content.create_index([("owner_id", 1), ("created_at", -1)])
     await db.sessions.create_index([("user_id", 1), ("started_at", -1)])
     # מסמכים שנמחקים אוטומטית בפקיעת expire_at

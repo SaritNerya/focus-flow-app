@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 import Field from "../components/Field";
 import FormStatus from "../components/FormStatus";
+import GoogleSignIn from "../components/GoogleSignIn";
 import PasswordInput from "../components/PasswordInput";
 import { useApiForm } from "../hooks/useApiForm";
 
@@ -36,6 +37,7 @@ export default function Login() {
         </Field>
         <FormStatus error={error} />
         <button className="btn" type="submit" disabled={busy}>{busy ? "מתחבר…" : "כניסה"}</button>
+        <GoogleSignIn mode="signin" />
         <p>אין לכם חשבון? <Link to="/register">הרשמה</Link></p>
       </form>
     </div>

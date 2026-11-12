@@ -6,12 +6,14 @@ interface AuthValue {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   register: (email: string, password: string, display_name: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateDisplayName: (display_name: string) => Promise<void>;
   changePassword: (current_password: string, new_password: string) => Promise<void>;
-  deleteAccount: (password: string) => Promise<void>;
+  /** אישור: הסיסמה, או האימייל למשתמש בלי סיסמה (Google). */
+  deleteAccount: (confirmation: { password: string } | { email: string }) => Promise<void>;
 }
 
 const Ctx = createContext<AuthValue>(null!);
@@ -34,11 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("auth:unauthorized", onUnauthorized);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const t = await api<TokenOut>("/api/auth/login", { method: "POST", body: { email, password }, auth: false });
+  const startSession = async (t: TokenOut) => {
     setToken(t.access_token);
     await refreshUser();
   };
+  const login = async (email: string, password: string) =>
+    startSession(await api<TokenOut>("/api/auth/login", { method: "POST", body: { email, password }, auth: false }));
+  const loginWithGoogle = async (credential: string) =>
+    startSession(await api<TokenOut>("/api/auth/google", { method: "POST", body: { credential }, auth: false }));
   const register = async (email: string, password: string, display_name: string) => {
     await api("/api/auth/register", { method: "POST", body: { email, password, display_name }, auth: false });
   };
@@ -59,13 +64,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const t = await api<TokenOut>("/api/users/me/password", { method: "POST", body: { current_password, new_password } });
     setToken(t.access_token);
   };
-  const deleteAccount = async (password: string) => {
-    await api("/api/users/me", { method: "DELETE", body: { password } });
+  const deleteAccount: AuthValue["deleteAccount"] = async (confirmation) => {
+    await api("/api/users/me", { method: "DELETE", body: confirmation });
     clearSession();
   };
 
   return (
-    <Ctx.Provider value={{ user, loading, login, register, logout, refreshUser, updateDisplayName, changePassword, deleteAccount }}>
+    <Ctx.Provider value={{ user, loading, login, loginWithGoogle, register, logout, refreshUser, updateDisplayName, changePassword, deleteAccount }}>
       {children}
     </Ctx.Provider>
   );

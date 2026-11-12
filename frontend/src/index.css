@@ -94,3 +94,9 @@ tr.latest-row td { background: #f1f5ff; font-weight: 600; }
 .checkbox { display: flex; gap: .5rem; align-items: flex-start; margin-bottom: .9rem; cursor: pointer; }
 .checkbox input { width: auto; margin-top: .3rem; }
 .btn.danger:hover { background: #a31f1f; }
+
+/* ---------- התחברות עם Google ---------- */
+.google-signin { margin-top: 1rem; }
+.divider { display: flex; align-items: center; gap: .75rem; color: var(--muted); margin-bottom: 1rem; }
+.divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
+.google-btn { display: flex; justify-content: center; min-height: 44px; }

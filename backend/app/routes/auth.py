@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Response
+from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError
 
 from .. import db
 from ..config import settings
 from ..deps import current_user
 from ..errors import ApiError
-from ..schemas import LoginIn, RegisterIn, RegisterOut, TokenOut
+from ..google_auth import verify_google_credential
+from ..schemas import GoogleLoginIn, LoginIn, RegisterIn, RegisterOut, TokenOut
 from ..security import create_token, hash_password, verify_password
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -71,6 +73,42 @@ async def login(body: LoginIn):
         raise ApiError(401, "האימייל או הסיסמה שגויים")
     await database.login_attempts.delete_one({"_id": body.email})
     return issue_token(user)
+
+
+async def _google_user(info: dict) -> dict:
+    """מוצא או יוצר את המשתמש של חשבון ה-Google."""
+    users = db.get_db().users
+    sub, email = info["sub"], info["email"].strip().lower()
+
+    user = await users.find_one({"google_sub": sub})
+    if user:
+        return user
+    # אימייל שכבר רשום עם סיסמה — מחברים לאותו חשבון (Google אימתה שהאימייל שייך למשתמש)
+    user = await users.find_one_and_update({"email": email}, {"$set": {"google_sub": sub}}, return_document=ReturnDocument.AFTER)
+    if user:
+        return user
+
+    name = (info.get("name") or email.split("@")[0]).strip()[:50] or "משתמש"
+    doc = {
+        "email": email,
+        "password_hash": None,  # אין סיסמה — מתחברים רק דרך Google
+        "display_name": name,
+        "created_at": db.now(),
+        "token_version": 0,
+        "google_sub": sub,
+    }
+    try:
+        doc["_id"] = (await users.insert_one(doc)).inserted_id
+    except DuplicateKeyError:  # מרוץ בין שתי כניסות במקביל
+        return await users.find_one({"google_sub": sub}) or await users.find_one({"email": email})
+    return doc
+
+
+@router.post("/google", response_model=TokenOut)
+async def google_login(body: GoogleLoginIn):
+    """התחברות/הרשמה עם Google: הטוקן של Google נבדק כאן, ומונפק הטוקן הרגיל של האתר."""
+    info = await verify_google_credential(body.credential)
+    return issue_token(await _google_user(info))
 
 
 @router.post("/logout", status_code=204, response_class=Response)

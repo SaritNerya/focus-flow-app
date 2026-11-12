@@ -37,6 +37,7 @@ services:
     restart: unless-stopped
     environment:
       API_URL: http://localhost:8000   # כתובת השרת כפי שהדפדפן רואה אותה
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}  # נלקח מקובץ .env
     depends_on:
       - server
     ports:

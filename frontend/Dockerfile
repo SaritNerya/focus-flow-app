@@ -12,4 +12,5 @@ COPY --from=build /app/dist /usr/share/nginx/html
 COPY 40-config.sh /docker-entrypoint.d/40-config.sh
 RUN chmod +x /docker-entrypoint.d/40-config.sh
 ENV API_URL=http://localhost:8000
+ENV GOOGLE_CLIENT_ID=""
 EXPOSE 80

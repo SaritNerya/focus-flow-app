@@ -18,8 +18,8 @@ export default function Profile() {
       <h1>הפרופיל שלי</h1>
       <ProfileDetails user={user} />
       <DisplayNameForm current={user.display_name} />
-      <PasswordForm />
-      <DeleteAccount />
+      {user.has_password ? <PasswordForm /> : <GoogleAccountNote />}
+      <DeleteAccount user={user} />
     </div>
   );
 }
@@ -68,6 +68,15 @@ function DisplayNameForm({ current }: { current: string }) {
   );
 }
 
+function GoogleAccountNote() {
+  return (
+    <section className="card" aria-labelledby="password-title">
+      <h2 id="password-title">סיסמה</h2>
+      <p className="muted">החשבון שלכם מחובר דרך Google ואין לו סיסמה באתר. ההתחברות נעשית בכפתור "התחברות עם Google".</p>
+    </section>
+  );
+}
+
 function PasswordForm() {
   const { changePassword } = useAuth();
   const [current, setCurrent] = useState("");
@@ -111,17 +120,20 @@ function PasswordForm() {
   );
 }
 
-function DeleteAccount() {
+function DeleteAccount({ user }: { user: User }) {
   const { deleteAccount } = useAuth();
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
-  const [password, setPassword] = useState("");
+  // אישור בסיסמה; משתמש Google בלי סיסמה מאשר בהקלדת האימייל של החשבון
+  const byPassword = user.has_password;
+  const field = byPassword ? "password" : "email";
+  const [value, setValue] = useState("");
   const [understood, setUnderstood] = useState(false);
   const { busy, error, fields, run } = useApiForm();
 
   function cancel() {
     setOpen(false);
-    setPassword("");
+    setValue("");
     setUnderstood(false);
   }
 
@@ -129,10 +141,14 @@ function DeleteAccount() {
     e.preventDefault();
     await run(
       async () => {
-        await deleteAccount(password);
+        await deleteAccount(byPassword ? { password: value } : { email: value });
         nav("/login", { replace: true, state: { notice: "החשבון וכל הנתונים שלו נמחקו לצמיתות." } });
       },
-      { validate: () => requireField(password, "password", "יש להזין סיסמה כדי לאשר") },
+      {
+        validate: () => byPassword
+          ? requireField(value, field, "יש להזין סיסמה כדי לאשר")
+          : value.trim().toLowerCase() === user.email ? {} : { [field]: "האימייל אינו תואם לחשבון" },
+      },
     );
   }
 
@@ -150,9 +166,15 @@ function DeleteAccount() {
         <button className="btn danger" type="button" onClick={() => setOpen(true)}>מחיקת החשבון…</button>
       ) : (
         <form onSubmit={submit} noValidate className="confirm-delete">
-          <Field label="הקלידו את הסיסמה שלכם לאישור" htmlFor="delete_password" error={fields.password}>
-            <PasswordInput id="delete_password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required autoFocus />
-          </Field>
+          {byPassword ? (
+            <Field label="הקלידו את הסיסמה שלכם לאישור" htmlFor="delete_confirm" error={fields[field]}>
+              <PasswordInput id="delete_confirm" value={value} onChange={(e) => setValue(e.target.value)} autoComplete="current-password" required autoFocus />
+            </Field>
+          ) : (
+            <Field label={`הקלידו את האימייל של החשבון לאישור (${user.email})`} htmlFor="delete_confirm" error={fields[field]}>
+              <input id="delete_confirm" type="email" dir="ltr" value={value} onChange={(e) => setValue(e.target.value)} autoComplete="off" required autoFocus />
+            </Field>
+          )}
           <label className="checkbox">
             <input type="checkbox" checked={understood} onChange={(e) => setUnderstood(e.target.checked)} />
             אני מבין/ה שהחשבון וכל הנתונים יימחקו לצמיתות

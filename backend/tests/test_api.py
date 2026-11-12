@@ -143,3 +143,43 @@ def test_profile_password_delete(client):
     db = dbmod.get_db()
     assert client.portal.call(db.content.count_documents, {}) == 0
     assert client.portal.call(db.sessions.count_documents, {}) == 0
+
+
+def fake_google(monkeypatch, sub="g-1", email="g@gmail.com", name="גוגל"):
+    """מחליף את בדיקת הטוקן מול Google בתשובה קבועה (בלי רשת)."""
+    async def verify(credential):
+        return {"sub": sub, "email": email, "email_verified": True, "name": name}
+
+    monkeypatch.setattr("app.routes.auth.verify_google_credential", verify)
+
+
+def test_google_login_creates_user_without_password(client, monkeypatch):
+    fake_google(monkeypatch)
+    r = client.post("/api/auth/google", json={"credential": "x"})
+    assert r.status_code == 200
+    h = {"Authorization": f"Bearer {r.json()['access_token']}"}
+    me = client.get("/api/users/me", headers=h).json()
+    assert me["email"] == "g@gmail.com" and me["display_name"] == "גוגל" and me["has_password"] is False
+    # כניסה חוזרת — אותו משתמש, לא נוצר כפול
+    r2 = client.post("/api/auth/google", json={"credential": "x"})
+    assert client.get("/api/users/me", headers={"Authorization": f"Bearer {r2.json()['access_token']}"}).json()["id"] == me["id"]
+    # אין סיסמה: החלפת סיסמה נחסמת, ומחיקה מאושרת באימייל
+    assert client.post("/api/users/me/password", headers=h, json={"current_password": "a", "new_password": "newpass12"}).status_code == 400
+    bad = client.request("DELETE", "/api/users/me", headers=h, json={"email": "other@gmail.com"})
+    assert bad.status_code == 400 and "email" in bad.json()["fields"]
+    assert client.request("DELETE", "/api/users/me", headers=h, json={"email": "G@gmail.com"}).status_code == 204
+
+
+def test_google_links_existing_email_account(client, monkeypatch):
+    register(client, email="g@gmail.com")
+    fake_google(monkeypatch)
+    r = client.post("/api/auth/google", json={"credential": "x"})
+    me = client.get("/api/users/me", headers={"Authorization": f"Bearer {r.json()['access_token']}"}).json()
+    assert me["display_name"] == "דני" and me["has_password"] is True     # אותו חשבון, הסיסמה נשמרה
+    assert login(client, email="g@gmail.com")[0].status_code == 200        # עדיין אפשר להתחבר בסיסמה
+
+
+def test_google_not_configured(client, monkeypatch):
+    monkeypatch.setattr("app.google_auth.settings.google_client_id", "")
+    r = client.post("/api/auth/google", json={"credential": "x"})
+    assert r.status_code == 503

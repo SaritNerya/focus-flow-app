@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     lockout_minutes: int = 15
     password_require_mixed: bool = True  # True = חובה אות וגם ספרה
 
+    # התחברות עם Google. ריק = הכפתור מושבת והאתר עובד כרגיל
+    google_client_id: str = ""
+
     # אופציונלי - האתר חייב לעבוד גם בלי זה
     gemini_api_key: str = ""
 

@@ -14,3 +14,4 @@ frontend/public/mediapipe/
 # קבצים מקומיים — לא לעלות לגיט (סיסמאות / תעודות של המחשב)
 CLUSTER.txt
 backend/certs/
+docker-compose.override.yml

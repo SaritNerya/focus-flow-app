@@ -54,11 +54,16 @@ class LoginIn(BaseModel):
         return v.strip().lower()
 
 
+class GoogleLoginIn(BaseModel):
+    credential: str = Field(min_length=1)  # ה-ID token שהתקבל מ-Google בדפדפן
+
+
 class UserOut(BaseModel):
     id: str
     email: str
     display_name: str
     created_at: datetime
+    has_password: bool  # False = משתמש שנרשם עם Google ואין לו סיסמה
 
 
 class RegisterOut(BaseModel):
@@ -85,8 +90,9 @@ class PasswordChange(BaseModel):
 
 
 class AccountDelete(BaseModel):
-    """אישור מחיקת חשבון: נדרשת הסיסמה הנוכחית."""
-    password: str = Field(min_length=1)
+    """אישור מחיקת חשבון: סיסמה, או אימייל למשתמש שאין לו סיסמה (Google)."""
+    password: str = ""
+    email: str = ""
 
 
 # ---------- content ----------
