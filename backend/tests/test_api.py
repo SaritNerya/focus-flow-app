@@ -119,11 +119,27 @@ def test_profile_password_delete(client):
     _, h = login(client)
     assert client.patch("/api/users/me", headers=h, json={"display_name": "חדש"}).json()["display_name"] == "חדש"
     bad = client.post("/api/users/me/password", headers=h, json={"current_password": "x", "new_password": "newpassword1"})
-    assert bad.status_code == 400
+    assert bad.status_code == 400 and "current_password" in bad.json()["fields"]
+    same = client.post("/api/users/me/password", headers=h, json={"current_password": "password1", "new_password": "password1"})
+    assert same.status_code == 400 and "new_password" in same.json()["fields"]
+    weak = client.post("/api/users/me/password", headers=h, json={"current_password": "password1", "new_password": "onlyletters"})
+    assert weak.status_code == 422 and "new_password" in weak.json()["fields"]
     ok = client.post("/api/users/me/password", headers=h, json={"current_password": "password1", "new_password": "newpassword1"})
-    assert ok.status_code == 204
+    assert ok.status_code == 200
     assert client.get("/api/users/me", headers=h).status_code == 401      # טוקן ישן נפסל
+    h = {"Authorization": f"Bearer {ok.json()['access_token']}"}
+    assert client.get("/api/users/me", headers=h).status_code == 200      # הטוקן החדש עובד
     assert login(client, pw="password1")[0].status_code == 401
-    _, h = login(client, pw="newpassword1")
-    assert client.delete("/api/users/me", headers=h).status_code == 204
+
+    # מחיקת חשבון: דורשת סיסמה ומוחקת גם את כל הנתונים
+    c = client.post("/api/content", headers=h, json={"type": "text", "title": "t", "source": "א" * 500}).json()
+    client.post("/api/sessions", headers=h, json={"content_id": c["id"]})
+    assert client.request("DELETE", "/api/users/me", headers=h).status_code == 422
+    wrong = client.request("DELETE", "/api/users/me", headers=h, json={"password": "wrong1234"})
+    assert wrong.status_code == 400 and "password" in wrong.json()["fields"]
+    assert client.request("DELETE", "/api/users/me", headers=h, json={"password": "newpassword1"}).status_code == 204
+    assert client.get("/api/users/me", headers=h).status_code == 401
     assert login(client, pw="newpassword1")[0].status_code == 401
+    db = dbmod.get_db()
+    assert client.portal.call(db.content.count_documents, {}) == 0
+    assert client.portal.call(db.sessions.count_documents, {}) == 0

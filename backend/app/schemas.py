@@ -84,6 +84,11 @@ class PasswordChange(BaseModel):
     _p = field_validator("new_password")(check_password)
 
 
+class AccountDelete(BaseModel):
+    """אישור מחיקת חשבון: נדרשת הסיסמה הנוכחית."""
+    password: str = Field(min_length=1)
+
+
 # ---------- content ----------
 ContentType = Literal["youtube", "text", "web"]
 

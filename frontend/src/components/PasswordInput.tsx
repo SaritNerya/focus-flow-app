@@ -1,11 +1,23 @@
-import { useState, type InputHTMLAttributes } from "react";
+import { useState, type InputHTMLAttributes, type SyntheticEvent } from "react";
+
+type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  /** חוסם הדבקה וגרירה — לשדות אימות סיסמה, כדי שהמשתמש יקליד בעצמו. */
+  noPaste?: boolean;
+};
+
+const block = (e: SyntheticEvent) => e.preventDefault();
 
 /** שדה סיסמה עם כפתור עין בתוך התיבה להצגה/הסתרה של הסיסמה. */
-export default function PasswordInput(props: Omit<InputHTMLAttributes<HTMLInputElement>, "type">) {
+export default function PasswordInput({ noPaste, ...props }: Props) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="password-wrap">
-      <input {...props} type={visible ? "text" : "password"} />
+      <input
+        {...props}
+        type={visible ? "text" : "password"}
+        onPaste={noPaste ? block : props.onPaste}
+        onDrop={noPaste ? block : props.onDrop}
+      />
       <button
         type="button"
         className="eye-btn"

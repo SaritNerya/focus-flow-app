@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { ApiError } from "../api";
 import { useAuth } from "../auth";
 import Field from "../components/Field";
+import FormStatus from "../components/FormStatus";
 import PasswordInput from "../components/PasswordInput";
+import { useApiForm } from "../hooks/useApiForm";
+import { CONFIRM_HINT, PASSWORD_HINT, validateNewPassword } from "../validation";
 
 export default function Register() {
   const { user, register, login } = useAuth();
@@ -12,49 +14,22 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [fields, setFields] = useState<Record<string, string>>({});
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const { busy, error, fields, run } = useApiForm();
 
   if (user) return <Navigate to="/" replace />;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    setError("");
-    setFields({});
-    if (password.length < 8) {
-      setFields({ password: "הסיסמה קצרה מדי: נדרשים לפחות 8 תווים" });
-      return;
-    }
-    if (!/\p{L}/u.test(password) || !/\d/.test(password)) {
-      setFields({ password: "הסיסמה חייבת לכלול לפחות אות אחת וספרה אחת" });
-      return;
-    }
-    if (!confirm) {
-      setFields({ confirm: "יש להזין שוב את הסיסמה" });
-      return;
-    }
-    if (password !== confirm) {
-      setFields({ confirm: "הסיסמאות אינן תואמות" });
-      return;
-    }
-    setBusy(true);
+    const ok = await run(() => register(email, password, displayName), {
+      validate: () => validateNewPassword(password, confirm),
+    });
+    if (!ok) return;
+    // התחברות אוטומטית אחרי הרשמה — ישר לאתר
     try {
-      await register(email, password, displayName);
-      // התחברות אוטומטית אחרי הרשמה — ישר לאתר
-      try {
-        await login(email, password);
-        nav("/", { replace: true });
-      } catch {
-        nav("/login", { replace: true, state: { registered: true } });
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setFields(err.fields);
-        if (Object.keys(err.fields).length === 0) setError(err.message);
-      } else setError("אירעה שגיאה. נסו שוב");
-    } finally {
-      setBusy(false);
+      await login(email, password);
+      nav("/", { replace: true });
+    } catch {
+      nav("/login", { replace: true, state: { notice: "ההרשמה הצליחה! אפשר להתחבר." } });
     }
   }
 
@@ -68,14 +43,13 @@ export default function Register() {
         <Field label="אימייל" htmlFor="email" error={fields.email}>
           <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
         </Field>
-        <Field label="סיסמה" htmlFor="password" error={fields.password} hint="לפחות 8 תווים, כולל אותיות וספרות">
+        <Field label="סיסמה" htmlFor="password" error={fields.password} hint={PASSWORD_HINT}>
           <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
         </Field>
-        <Field label="אימות סיסמה" htmlFor="confirm_password" error={fields.confirm} hint="יש להקליד את הסיסמה שוב (לא ניתן להדביק)">
-          <PasswordInput id="confirm_password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required aria-invalid={!!fields.confirm}
-            onPaste={(e) => e.preventDefault()} onDrop={(e) => e.preventDefault()} />
+        <Field label="אימות סיסמה" htmlFor="confirm_password" error={fields.confirm} hint={CONFIRM_HINT}>
+          <PasswordInput id="confirm_password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required noPaste />
         </Field>
-        {error && <p className="error" role="alert">{error}</p>}
+        <FormStatus error={error} />
         <button className="btn" type="submit" disabled={busy}>{busy ? "נרשם…" : "הרשמה"}</button>
         <p>כבר יש לכם חשבון? <Link to="/login">התחברות</Link></p>
       </form>

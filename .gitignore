@@ -10,3 +10,7 @@ __pycache__/
 # קבצים שנוצרים אוטומטית ע"י frontend/scripts/copy-assets.mjs
 frontend/public/ort/
 frontend/public/mediapipe/
+
+# קבצים מקומיים — לא לעלות לגיט (סיסמאות / תעודות של המחשב)
+CLUSTER.txt
+backend/certs/

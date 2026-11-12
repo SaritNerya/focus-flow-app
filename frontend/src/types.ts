@@ -1,4 +1,5 @@
 export interface User { id: string; email: string; display_name: string; created_at: string }
+export interface TokenOut { access_token: string; token_type: string; expires_in: number }
 export type ContentType = "youtube" | "text" | "web";
 export interface ContentItem {
   id: string; title: string; type: ContentType; source: string; created_at: string;

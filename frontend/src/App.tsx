@@ -6,6 +6,7 @@ import Library from "./pages/Library";
 import ContentPage from "./pages/ContentPage";
 import History from "./pages/History";
 import SessionPage from "./pages/SessionPage";
+import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/content/:id" element={<ContentPage />} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:id" element={<SessionPage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

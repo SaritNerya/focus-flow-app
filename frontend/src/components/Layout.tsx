@@ -1,7 +1,7 @@
 import { Link, NavLink, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../auth";
 
-/** מעטפת למסכי משתמש מחובר: ניווט, שם תצוגה והתנתקות. משתמש לא מחובר מועבר להתחברות. */
+/** מעטפת למסכי משתמש מחובר: ניווט, שם תצוגה, פרופיל והתנתקות. משתמש לא מחובר מועבר להתחברות. */
 export default function Layout() {
   const { user, loading, logout } = useAuth();
   if (loading) return <p className="center muted">טוען…</p>;
@@ -14,6 +14,7 @@ export default function Layout() {
         <nav aria-label="ניווט ראשי">
           <NavLink to="/" end>הספרייה שלי</NavLink>
           <NavLink to="/history">היסטוריית סשנים</NavLink>
+          <NavLink to="/profile">הפרופיל שלי</NavLink>
         </nav>
         <div className="user">
           <span>שלום, {user.display_name}</span>

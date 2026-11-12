@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, getToken, setToken } from "./api";
-import type { User } from "./types";
+import type { TokenOut, User } from "./types";
 
 interface AuthValue {
   user: User | null;
@@ -9,6 +9,9 @@ interface AuthValue {
   register: (email: string, password: string, display_name: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateDisplayName: (display_name: string) => Promise<void>;
+  changePassword: (current_password: string, new_password: string) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const Ctx = createContext<AuthValue>(null!);
@@ -32,18 +35,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const t = await api<{ access_token: string }>("/api/auth/login", { method: "POST", body: { email, password }, auth: false });
+    const t = await api<TokenOut>("/api/auth/login", { method: "POST", body: { email, password }, auth: false });
     setToken(t.access_token);
     await refreshUser();
   };
   const register = async (email: string, password: string, display_name: string) => {
     await api("/api/auth/register", { method: "POST", body: { email, password, display_name }, auth: false });
   };
-  const logout = async () => {
-    try { await api("/api/auth/logout", { method: "POST" }); } catch { /* מתנתקים מקומית בכל מקרה */ }
+  const clearSession = () => {
     setToken(null);
     setUser(null);
   };
+  const logout = async () => {
+    try { await api("/api/auth/logout", { method: "POST" }); } catch { /* מתנתקים מקומית בכל מקרה */ }
+    clearSession();
+  };
 
-  return <Ctx.Provider value={{ user, loading, login, register, logout, refreshUser }}>{children}</Ctx.Provider>;
+  const updateDisplayName = async (display_name: string) => {
+    setUser(await api<User>("/api/users/me", { method: "PATCH", body: { display_name } }));
+  };
+  // השרת פוסל את כל הטוקנים הישנים ומחזיר טוקן חדש — כך נשארים מחוברים רק במכשיר הזה
+  const changePassword = async (current_password: string, new_password: string) => {
+    const t = await api<TokenOut>("/api/users/me/password", { method: "POST", body: { current_password, new_password } });
+    setToken(t.access_token);
+  };
+  const deleteAccount = async (password: string) => {
+    await api("/api/users/me", { method: "DELETE", body: { password } });
+    clearSession();
+  };
+
+  return (
+    <Ctx.Provider value={{ user, loading, login, register, logout, refreshUser, updateDisplayName, changePassword, deleteAccount }}>
+      {children}
+    </Ctx.Provider>
+  );
 }

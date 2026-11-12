@@ -13,6 +13,12 @@ from ..security import create_token, hash_password, verify_password
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+def issue_token(user: dict) -> TokenOut:
+    """מנפיק טוקן גישה לפי גרסת הטוקנים הנוכחית של המשתמש."""
+    token, expires_in = create_token(str(user["_id"]), user.get("token_version", 0))
+    return TokenOut(access_token=token, expires_in=expires_in)
+
+
 @router.post("/register", response_model=RegisterOut, status_code=201)
 async def register(body: RegisterIn):
     database = db.get_db()
@@ -64,8 +70,7 @@ async def login(body: LoginIn):
         await _register_failure(body.email)
         raise ApiError(401, "האימייל או הסיסמה שגויים")
     await database.login_attempts.delete_one({"_id": body.email})
-    token, expires_in = create_token(str(user["_id"]), user.get("token_version", 0))
-    return TokenOut(access_token=token, expires_in=expires_in)
+    return issue_token(user)
 
 
 @router.post("/logout", status_code=204, response_class=Response)

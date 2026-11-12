@@ -5,8 +5,11 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (t: string | null) =>
   t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
 
+/** שגיאות לפי שם שדה, כפי שהשרת מחזיר ב-fields. */
+export type FieldErrors = Record<string, string>;
+
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public fields: Record<string, string> = {}) {
+  constructor(public status: number, message: string, public fields: FieldErrors = {}) {
     super(message);
   }
 }
