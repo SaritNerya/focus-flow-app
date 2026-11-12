@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
+import AuthShell from "../components/AuthShell";
 import Field from "../components/Field";
 import FormStatus from "../components/FormStatus";
 import GoogleSignIn from "../components/GoogleSignIn";
@@ -35,9 +36,8 @@ export default function Register() {
   }
 
   return (
-    <div className="auth-page">
-      <form className="card auth-card" onSubmit={submit} noValidate>
-        <h1>הרשמה ל-FocusFlow</h1>
+    <AuthShell title="הרשמה" lead="פותחים חשבון בחינם ומתחילים ללמוד בריכוז.">
+      <form onSubmit={submit} noValidate>
         <Field label="שם תצוגה" htmlFor="display_name" error={fields.display_name}>
           <input id="display_name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} autoComplete="nickname" required />
         </Field>
@@ -52,9 +52,9 @@ export default function Register() {
         </Field>
         <FormStatus error={error} />
         <button className="btn" type="submit" disabled={busy}>{busy ? "נרשם…" : "הרשמה"}</button>
-        <GoogleSignIn mode="signup" />
-        <p>כבר יש לכם חשבון? <Link to="/login">התחברות</Link></p>
       </form>
-    </div>
+      <GoogleSignIn mode="signup" />
+      <p className="auth-switch">כבר יש לכם חשבון? <Link to="/login">התחברות</Link></p>
+    </AuthShell>
   );
 }

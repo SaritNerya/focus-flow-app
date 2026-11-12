@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { api, ApiError } from "../api";
+import { CONTENT_TYPES } from "../contentTypes";
+import Loader from "../components/Loader";
 import NotFound from "../components/NotFound";
+import PageHeader from "../components/PageHeader";
 import SessionPanel from "../components/SessionPanel";
 import YouTubePlayer from "../components/YouTubePlayer";
 import type { ContentItem } from "../types";
@@ -33,22 +36,22 @@ export default function ContentPage() {
     return () => { positionRef.current = () => null; };
   }, [item]);
 
-  if (state === "loading") return <p className="muted">טוען…</p>;
+  if (state === "loading") return <Loader />;
   if (state === "missing") return <NotFound what="הפריט" />;
   if (state === "error" || !item) return <p className="error" role="alert">לא הצלחנו לטעון את הפריט. נסו לרענן.</p>;
 
+  const info = CONTENT_TYPES[item.type];
   return (
     <>
-      <p><Link to="/">← חזרה לספרייה</Link></p>
-      <h1>{item.title}</h1>
-      <div className="grid wide-left">
+      <PageHeader title={item.title} shape={info.shape} color={info.color} subtitle={info.label} back={{ to: "/", label: "חזרה לספרייה" }} />
+      <div className="content-layout">
         <section className="card viewer" aria-label="תצוגת התוכן">
           {item.type === "youtube" && item.youtube_id && (
             <YouTubePlayer videoId={item.youtube_id} title={item.title} positionRef={positionRef} />
           )}
           {/* טקסט מוצג כטקסט רגיל (לא כ-HTML) - הגנה מפני XSS */}
           {item.type !== "youtube" && <article className="reader" dir="auto" ref={readerRef}>{item.text}</article>}
-          {item.type === "web" && <p className="muted">מקור: <a href={item.source} target="_blank" rel="noopener noreferrer" dir="ltr">{item.source}</a></p>}
+          {item.type === "web" && <p className="muted source-line">מקור: <a href={item.source} target="_blank" rel="noopener noreferrer" dir="ltr">{item.source}</a></p>}
         </section>
         <SessionPanel contentId={item.id} getPosition={() => positionRef.current()} />
       </div>

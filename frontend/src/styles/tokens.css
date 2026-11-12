@@ -1,0 +1,34 @@
+/* ===== משתני עיצוב (Design tokens) — סגנון באוהאוס =====
+   שלושת צבעי היסוד + שחור ונייר. כל צבע/מרווח באתר מגיע מכאן. */
+:root {
+  /* צבעים */
+  --paper: #f4efe6;        /* רקע: נייר חם */
+  --surface: #ffffff;      /* כרטיסים ושדות */
+  --ink: #151515;          /* טקסט וקווים */
+  --muted: #57534c;        /* טקסט משני (ניגודיות AA על נייר ועל לבן) */
+  --red: #d7261e;
+  --red-dark: #a91c16;
+  --red-soft: #fde4e1;
+  --yellow: #f4b400;
+  --yellow-soft: #fff3cc;
+  --blue: #1d4e9e;
+  --blue-dark: #153a77;
+  --blue-soft: #e4ecf8;
+
+  /* טיפוגרפיה */
+  --font: "Rubik", "Heebo", "Segoe UI", system-ui, Arial, sans-serif;
+
+  /* קווים וצללים "קשיחים" */
+  --bw: 2px;                          /* עובי קו */
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-lg: 8px 8px 0 var(--ink);
+
+  /* מרווחים */
+  --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem; --s5: 1.5rem; --s6: 2rem; --s7: 3rem;
+
+  /* מבנה */
+  --container: 1120px;
+  --header-h: 68px;
+  --bottom-nav-h: 64px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}

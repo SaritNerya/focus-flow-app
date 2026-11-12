@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
+import AuthShell from "../components/AuthShell";
 import Field from "../components/Field";
 import FormStatus from "../components/FormStatus";
 import GoogleSignIn from "../components/GoogleSignIn";
@@ -24,10 +25,8 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-page">
-      <form className="card auth-card" onSubmit={submit} noValidate>
-        <h1>התחברות ל-FocusFlow</h1>
-        <p className="muted">אתר לימוד שמודד קשב דרך המצלמה ועוזר לכם להישאר ממוקדים.</p>
+    <AuthShell title="התחברות" lead="טוב לראות אתכם שוב. ממשיכים ללמוד?">
+      <form onSubmit={submit} noValidate>
         {notice && <p className="success" role="status">{notice}</p>}
         <Field label="אימייל" htmlFor="email" error={fields.email}>
           <input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -37,9 +36,9 @@ export default function Login() {
         </Field>
         <FormStatus error={error} />
         <button className="btn" type="submit" disabled={busy}>{busy ? "מתחבר…" : "כניסה"}</button>
-        <GoogleSignIn mode="signin" />
-        <p>אין לכם חשבון? <Link to="/register">הרשמה</Link></p>
       </form>
-    </div>
+      <GoogleSignIn mode="signin" />
+      <p className="auth-switch">אין לכם חשבון? <Link to="/register">הרשמה</Link></p>
+    </AuthShell>
   );
 }

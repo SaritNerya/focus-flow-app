@@ -1,0 +1,150 @@
+/* ===== רכיבים משותפים ===== */
+
+/* ---------- כפתורים: צל קשיח שמתרומם במעבר עכבר ו"נלחץ" בלחיצה ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 44px; padding: .6rem 1.25rem;
+  font: 600 1rem/1.2 var(--font); text-decoration: none; white-space: nowrap;
+  color: #fff; background: var(--blue);
+  border: var(--bw) solid var(--ink); border-radius: 0;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .15s var(--ease), box-shadow .15s var(--ease), background-color .15s;
+}
+.btn:hover { color: #fff; background: var(--blue-dark); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: var(--shadow); }
+
+.btn.secondary { color: var(--ink); background: var(--surface); }
+.btn.secondary:hover { color: var(--ink); background: var(--yellow-soft); }
+.btn.accent { color: var(--ink); background: var(--yellow); }
+.btn.accent:hover { color: var(--ink); background: #e0a500; }
+.btn.danger { background: var(--red); }
+.btn.danger:hover { background: var(--red-dark); }
+.btn.small { min-height: 36px; padding: .35rem .85rem; font-size: .9rem; box-shadow: 3px 3px 0 var(--ink); }
+.btn.small:active { transform: translate(3px, 3px); }
+.btn.block { width: 100%; }
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
+
+/* ---------- טפסים ---------- */
+.field { display: grid; gap: var(--s1); margin-bottom: var(--s4); }
+.field label, .field legend { font-weight: 600; }
+.field small { font-size: .85rem; }
+
+input, select, textarea {
+  width: 100%; min-height: 46px;
+  padding: .6rem .8rem;
+  font: inherit; color: var(--ink);
+  background: var(--surface);
+  border: var(--bw) solid var(--ink); border-radius: 0;
+  transition: box-shadow .15s var(--ease);
+}
+textarea { resize: vertical; line-height: 1.6; }
+input:focus, select:focus, textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--yellow); }
+input[aria-invalid="true"] { border-color: var(--red); }
+::placeholder { color: #8a857c; }
+
+/* תיבת סימון בסגנון ריבוע */
+.checkbox { display: flex; gap: var(--s3); align-items: flex-start; margin-bottom: var(--s4); cursor: pointer; }
+.checkbox input {
+  appearance: none; flex: none; width: 24px; height: 24px; min-height: 0; padding: 0; margin-top: 2px;
+  display: grid; place-items: center; cursor: pointer;
+}
+.checkbox input:checked { background: var(--red); }
+.checkbox input:checked::after { content: ""; width: 10px; height: 10px; background: var(--surface); }
+
+/* שדה סיסמה עם כפתור עין */
+.password-wrap { position: relative; }
+.password-wrap input { padding-inline-end: 3rem; }
+.eye-btn {
+  position: absolute; inset-inline-end: 6px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 36px; height: 36px; padding: 0;
+  color: var(--muted); background: transparent; border: 0; cursor: pointer;
+}
+.eye-btn:hover { color: var(--ink); background: var(--yellow-soft); }
+
+/* ---------- כרטיסים ---------- */
+.card {
+  background: var(--surface);
+  border: var(--bw) solid var(--ink);
+  padding: var(--s5);
+}
+.card > :last-child { margin-bottom: 0; }
+.card.pop-yellow { box-shadow: 8px 8px 0 var(--yellow); }
+.card.pop-blue { box-shadow: 8px 8px 0 var(--blue); }
+.card.pop-red { box-shadow: 8px 8px 0 var(--red); }
+
+/* כותרת כרטיס עם צורה צבעונית */
+.card-title { display: flex; align-items: center; gap: var(--s3); }
+
+/* ---------- הודעות ---------- */
+.error { color: var(--red-dark); font-weight: 500; margin: var(--s2) 0; }
+.success { color: var(--blue); font-weight: 600; margin: var(--s2) 0; }
+.success::before, .error::before {
+  content: ""; display: inline-block; width: .6em; height: .6em; margin-inline-end: .5em; background: currentColor;
+}
+.success::before { border-radius: 50%; }
+.field .error::before { display: none; }
+
+.notice { padding: var(--s3) var(--s4); border: var(--bw) solid var(--ink); font-weight: 500; }
+.notice.info { background: var(--blue-soft); }
+.notice.warn { background: var(--yellow-soft); }
+.notice.danger { color: #fff; background: var(--red); font-weight: 600; }
+
+/* ---------- תגיות ---------- */
+.tag {
+  display: inline-flex; align-items: center; gap: .4em;
+  padding: .15rem .6rem; font-size: .8rem; font-weight: 600;
+  background: var(--surface); border: var(--bw) solid var(--ink);
+}
+.badge {
+  display: inline-block; margin-inline-start: var(--s2); padding: .05rem .5rem;
+  font-size: .75rem; font-weight: 700; color: var(--ink); background: var(--yellow); border: 1.5px solid var(--ink);
+}
+
+/* ---------- טבלאות (בנייד הופכות לכרטיסים) ---------- */
+.table-wrap { overflow-x: auto; padding: 0; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: start; padding: var(--s3) var(--s4); border-bottom: 1px solid #d8d2c6; }
+th { font-size: .85rem; font-weight: 700; color: #fff; background: var(--ink); white-space: nowrap; }
+tbody tr:hover td { background: var(--yellow-soft); }
+tbody tr:last-child td { border-bottom: 0; }
+tr.highlight td { background: var(--blue-soft); font-weight: 600; }
+
+@media (max-width: 640px) {
+  .responsive-table thead { display: none; }
+  .responsive-table tr { display: block; padding: var(--s3) var(--s4); border-bottom: var(--bw) solid var(--ink); }
+  .responsive-table tr:last-child { border-bottom: 0; }
+  .responsive-table td { display: flex; justify-content: space-between; gap: var(--s4); padding: var(--s1) 0; border: 0; }
+  .responsive-table td::before { content: attr(data-label); font-weight: 600; color: var(--muted); }
+  .responsive-table td:empty { display: none; }
+}
+
+/* ---------- טוען: שלוש צורות קופצות ---------- */
+.loader { display: flex; justify-content: center; align-items: center; gap: var(--s3); padding: var(--s7) 0; }
+.loader span { width: 18px; height: 18px; border: var(--bw) solid var(--ink); animation: hop 1s var(--ease) infinite; }
+.loader span:nth-child(1) { background: var(--red); border-radius: 50%; }
+.loader span:nth-child(2) { background: var(--yellow); animation-delay: .15s; }
+.loader span:nth-child(3) { background: var(--blue); animation-delay: .3s; }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } }
+
+/* ---------- מפריד "או" ---------- */
+.divider { display: flex; align-items: center; gap: var(--s3); margin: var(--s5) 0 var(--s4); color: var(--muted); font-weight: 600; }
+.divider::before, .divider::after { content: ""; flex: 1; border-top: var(--bw) solid var(--ink); }
+
+/* ---------- כפתור Google ----------
+   הכפתור שרואים (face) מעוצב אצלנו; מעליו יושב הכפתור האמיתי של Google — שקוף — שמקבל את הלחיצה. */
+.google-btn { position: relative; height: 48px; }
+.google-btn__face {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; gap: var(--s3);
+  font-weight: 600; color: var(--ink); background: var(--surface);
+  border: var(--bw) solid var(--ink); box-shadow: var(--shadow);
+  transition: transform .15s var(--ease), box-shadow .15s var(--ease), background-color .15s;
+}
+.google-btn__hit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: .0001; overflow: hidden; }
+.google-btn:hover .google-btn__face { background: var(--yellow-soft); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.google-btn:focus-within .google-btn__face { outline: 3px solid var(--blue); outline-offset: 3px; }
+.google-btn.is-loading .google-btn__face { opacity: .6; }
+.google-btn.is-busy .google-btn__face { transform: translate(4px, 4px); box-shadow: none; }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, ApiError } from "../api";
 import { LOW_FOCUS_THRESHOLD, WINDOW_SECONDS } from "../attention/config";
 import type { AttentionController } from "../attention/controller";
+import Shape from "./Shape";
 
 type Camera = "off" | "asking" | "loading" | "on" | "denied" | "error";
 
@@ -121,17 +122,17 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
   const secondsLeft = Math.ceil((1 - fill) * WINDOW_SECONDS);
 
   return (
-    <section className="card" aria-labelledby="session-h">
-      <h2 id="session-h">סשן קשב</h2>
+    <section className="card session-panel pop-blue" aria-labelledby="session-h">
+      <h2 id="session-h" className="card-title"><Shape kind="square" color="var(--blue)" outline />סשן קשב</h2>
 
       {!sessionId ? (
         <>
           <p className="muted">בסשן אפשר למדוד את רמת הקשב שלכם בזמן הצפייה או הקריאה, דרך המצלמה.</p>
-          <button className="btn" onClick={start} disabled={busy}>{busy ? "פותח…" : "התחלת סשן"}</button>
+          <button className="btn accent block" onClick={start} disabled={busy}>{busy ? "פותח…" : "התחלת סשן"}</button>
         </>
       ) : (
         <>
-          <p className="success" role="status">הסשן פעיל.</p>
+          <p className="live-pill" role="status">הסשן פעיל</p>
 
           {(camera === "off" || camera === "denied" || camera === "error") && (
             <div className="consent">
@@ -141,7 +142,7 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
                 <li>הווידאו לא עוזב את המכשיר שלכם ולא נשמר.</li>
                 <li>הדפדפן מחשב מהתמונה נקודות פנים, ומהן ציון קשב. רק הציון (מספר בין 0 ל-1) נשלח לשרת ונשמר.</li>
               </ul>
-              <button className="btn" onClick={enableCamera}>
+              <button className="btn block" onClick={enableCamera}>
                 {camera === "off" ? "הפעלת מצלמה ומדידת קשב" : "ניסיון נוסף"}
               </button>
               {cameraMsg && <p className="error" role="alert">{cameraMsg}</p>}
@@ -159,17 +160,17 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
               <div className={`score-value ${low ? "low" : ""}`} aria-live="polite">{score === null ? "—" : score.toFixed(2)}</div>
               <div className="bar" aria-hidden="true"><div className={low ? "low" : ""} style={{ width: `${Math.round((score ?? 0) * 100)}%` }} /></div>
 
-              {!faceFound && <p className="warn" role="alert">לא זוהו פנים. ודאו שהפנים שלכם נראים במצלמה.</p>}
+              {!faceFound && <p className="notice warn" role="alert">לא זוהו פנים. ודאו שהפנים שלכם נראים במצלמה.</p>}
               {faceFound && score === null && <p className="muted" role="status">אוספים נתונים… הציון הראשון יופיע בעוד כ-{secondsLeft} שניות.</p>}
               {faceFound && score !== null && <p className="muted">הציון מתעדכן כל כמה שניות.</p>}
-              {low && <p className="alert-box" role="alert">⚠ הקשב שלכם ירד. אולי כדאי לקחת הפסקה קצרה או לחזור לקטע שהחמצתם.</p>}
-              {saveWarning && <p className="warn">שמירת הציון בשרת נכשלה. ננסה שוב בציון הבא.</p>}
-              {cameraMsg && <p className="warn">{cameraMsg}</p>}
-              <button className="btn secondary" onClick={disableCamera}>כיבוי המצלמה (בלי לסיים סשן)</button>
+              {low && <p className="notice danger" role="alert">⚠ הקשב שלכם ירד. אולי כדאי לקחת הפסקה קצרה או לחזור לקטע שהחמצתם.</p>}
+              {saveWarning && <p className="notice warn">שמירת הציון בשרת נכשלה. ננסה שוב בציון הבא.</p>}
+              {cameraMsg && <p className="notice warn">{cameraMsg}</p>}
+              <button className="btn secondary block" onClick={disableCamera}>כיבוי המצלמה (בלי לסיים סשן)</button>
             </div>
           )}
 
-          <button className="btn danger end-btn" onClick={end} disabled={busy}>{busy ? "מסיים…" : "סיום הסשן"}</button>
+          <button className="btn danger block" onClick={end} disabled={busy}>{busy ? "מסיים…" : "סיום הסשן"}</button>
         </>
       )}
       {error && <p className="error" role="alert">{error}</p>}
