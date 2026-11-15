@@ -84,7 +84,7 @@
 @media (max-width: 760px) {
   .container { padding-inline: var(--s4); }
   .header-inner { gap: var(--s3); height: 60px; }
-  .user-btn__name { display: none; }
+  .user-btn__name { max-width: 9ch; } /* שם מקוצר עם "…" (החיתוך מוגדר בכלל הבסיסי) */
 
   .main-nav {
     position: fixed; inset-inline: 0; bottom: 0; z-index: 20;
@@ -96,6 +96,15 @@
   .main-nav a::after { top: -1px; bottom: auto; }
   .page { padding-block: var(--s4) calc(var(--bottom-nav-h) + var(--s6)); }
   .page-header { margin-bottom: var(--s4); }
+}
+
+/* טלפון צר מאוד (320px): שם קצר יותר ולוגו קטן, כדי שהשורה לא תיחתך */
+@media (max-width: 400px) {
+  .header-inner { gap: var(--s2); }
+  .logo-mark { width: 28px; height: 28px; }
+  .logo-word { font-size: 1.25rem; }
+  .user-btn { gap: var(--s1); padding-inline: .5rem; }
+  .user-btn__name { max-width: 6ch; }
 }
 
 /* ---------- מסכי התחברות והרשמה: כרטיס על המפה, בלי גלילה ----------

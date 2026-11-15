@@ -12,6 +12,21 @@ import { useApiForm } from "../hooks/useApiForm";
 import type { ContentItem, ContentType } from "../types";
 
 const fmtDay = (s: string) => new Date(s).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" });
+const SOURCE_PREVIEW = 80;
+
+/** תיאור קצר של המקור: לקישור — הדומיין (youtube.com), לטקסט — תחילת הטקסט עם "…". */
+function sourcePreview(item: ContentItem): string {
+  if (item.type === "text") {
+    // ברשימה השרת כבר מקצר טקסט ארוך ל-200 תווים ומוסיף "…"
+    const flat = item.source.replace(/\s+/g, " ").trim().replace(/…$/, "");
+    return flat.length > SOURCE_PREVIEW ? `${flat.slice(0, SOURCE_PREVIEW).trimEnd()}…` : flat;
+  }
+  try {
+    return new URL(item.source).hostname.replace(/^www\./, "");
+  } catch {
+    return item.source;
+  }
+}
 
 export default function Library() {
   const [items, setItems] = useState<ContentItem[] | null>(null);
@@ -145,6 +160,7 @@ function TrailRow({ item, index, onDeleted, onError }: { item: ContentItem; inde
       <span className="trail-row__dot" aria-hidden="true" />
       <div className="trail-row__body">
         <Link to={`/content/${item.id}`} className="trail-row__title">{item.title}</Link>
+        <p className="trail-row__source"><bdi>{sourcePreview(item)}</bdi></p>
         <div className="trail-row__meta mono">
           <span className="tag"><Shape kind={info.shape} color={info.color} />{info.label}</span>
           <span>{fmtDay(item.created_at)}</span>
