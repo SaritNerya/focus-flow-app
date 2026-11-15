@@ -13,6 +13,14 @@ from .errors import ApiError
 MAX_BYTES = 2_000_000
 MAX_REDIRECTS = 3
 MIN_TEXT = 200
+BLOCKED_STATUSES = (401, 403, 429, 503)  # האתר חוסם גישה אוטומטית (לרוב מכתובות של שרתי ענן)
+
+# כותרות של דפדפן רגיל: אתרים רבים חוסמים בקשות עם User-Agent של בוט
+REQUEST_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.8",
+    "Accept-Language": "he,en;q=0.8",
+}
 
 
 class FetchedPage(NamedTuple):
@@ -62,8 +70,7 @@ async def _assert_public(url: str) -> None:
 
 async def fetch_page(url: str) -> FetchedPage:
     """מוריד את הדף ומחזיר כותרת, טקסט נקי לתצוגת קריאה, וכתובת להטמעה (אם מותר)."""
-    headers = {"User-Agent": "FocusFlowBot/1.0 (+reader view)"}
-    async with httpx.AsyncClient(follow_redirects=False, timeout=8.0, headers=headers) as client:
+    async with httpx.AsyncClient(follow_redirects=False, timeout=8.0, headers=REQUEST_HEADERS) as client:
         current = url
         for _ in range(MAX_REDIRECTS + 1):
             await _assert_public(current)  # בכל קפיצה מחדש, גם בהפניות
@@ -75,6 +82,8 @@ async def fetch_page(url: str) -> FetchedPage:
                             raise _bad("הדף הפנה למקום לא ידוע")
                         current = urljoin(current, loc)
                         continue
+                    if resp.status_code in BLOCKED_STATUSES:
+                        raise _bad("האתר חוסם גישה אוטומטית לדף. אפשר להעתיק את הטקסט ולהוסיף אותו כפריט מסוג טקסט")
                     if resp.status_code != 200:
                         raise _bad(f"האתר החזיר שגיאה ({resp.status_code})")
                     ctype = resp.headers.get("content-type", "")

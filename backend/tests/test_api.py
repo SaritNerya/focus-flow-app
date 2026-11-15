@@ -406,3 +406,31 @@ def test_security_headers(client):
         assert r.headers["X-Content-Type-Options"] == "nosniff"
         assert r.headers["X-Frame-Options"] == "DENY"
         assert r.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"
+
+
+def test_web_fetch_blocked_site(monkeypatch):
+    """אתר שחוסם (403): הודעה ברורה שמציעה להוסיף כטקסט, ונשלחות כותרות של דפדפן."""
+    import asyncio
+
+    import httpx
+
+    from app import web_fetch
+    from app.errors import ApiError
+
+    seen = {}
+
+    def handler(request):
+        seen["ua"] = request.headers["user-agent"]
+        return httpx.Response(403, text="blocked")
+
+    async def public(url):
+        pass
+
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(web_fetch, "_assert_public", public)
+    monkeypatch.setattr(web_fetch.httpx, "AsyncClient", lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw))
+    with pytest.raises(ApiError) as err:
+        asyncio.run(web_fetch.fetch_page("https://blocked.example/p"))
+    assert err.value.status == 422
+    assert "פריט מסוג טקסט" in err.value.message
+    assert seen["ua"].startswith("Mozilla/5.0")
