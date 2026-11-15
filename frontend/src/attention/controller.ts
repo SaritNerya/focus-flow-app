@@ -7,6 +7,8 @@ export interface AttentionCallbacks {
   onScore(p: Prediction): void;
   /** faceFound=false אחרי כ-0.3 שנ' בלי פנים. fill = כמה מהחלון (0..1) כבר נאסף. */
   onFrame(faceFound: boolean, fill: number): void;
+  /** החלון התאפס כי לא זוהו פנים כ-1 שנ' (פעם אחת לכל היעדרות). הציון הקודם כבר לא רלוונטי. */
+  onWindowReset(): void;
   onError(message: string): void;
 }
 
@@ -53,7 +55,10 @@ export class AttentionController {
     const frame = this.tracker.detect(v);
     if (!frame) {
       this.missing++;
-      if (this.missing >= MISSING_TO_RESET) this.win.clear();
+      if (this.missing === MISSING_TO_RESET) {
+        this.win.clear();
+        this.cb.onWindowReset();
+      }
       if (this.missing >= MISSING_TO_FLAG) this.cb.onFrame(false, this.win.fill());
       return; // אין פנים: לא מריצים את המודל
     }

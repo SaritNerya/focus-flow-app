@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends
 
 from .. import db
@@ -8,6 +10,7 @@ from ..schemas import ReadingIn, ReadingOut, SessionCreate, SessionDetail, Sessi
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 MAX_READINGS = 5000
+STALE_AFTER = timedelta(minutes=30)  # סשן פתוח בלי מדידה חדשה זמן כזה נחשב נטוש
 
 
 def _avg(doc: dict) -> float | None:
@@ -36,9 +39,23 @@ async def get_owned_session(session_id: str, user: dict, projection: dict | None
     return doc
 
 
+async def close_stale_sessions(user_id) -> None:
+    """סוגר סשנים פתוחים של המשתמש שלא הגיעה אליהם מדידה כבר STALE_AFTER (למשל כשהלשונית נסגרה).
+    זמן הסיום = זמן המדידה האחרונה, או זמן ההתחלה אם אין מדידות."""
+    coll = db.get_db().sessions
+    cursor = coll.find({"user_id": user_id, "ended_at": None}, {"started_at": 1, "readings": {"$slice": -1}})
+    now = db.now()
+    async for s in cursor:
+        last = s.get("readings") or []
+        last_activity = db.as_utc(last[-1]["created_at"] if last else s["started_at"])
+        if now - last_activity >= STALE_AFTER:
+            await coll.update_one({"_id": s["_id"], "ended_at": None}, {"$set": {"ended_at": last_activity}})
+
+
 @router.post("", response_model=SessionStart, status_code=201)
 async def start_session(body: SessionCreate, user: dict = Depends(current_user)):
     content = await get_owned(body.content_id, user)  # 404 אם לא שלי
+    await close_stale_sessions(user["_id"])
     doc = {
         "user_id": user["_id"],
         "content_id": content["_id"],
@@ -80,6 +97,7 @@ async def end_session(session_id: str, user: dict = Depends(current_user)):
 
 @router.get("", response_model=list[SessionSummary])
 async def list_sessions(user: dict = Depends(current_user)):
+    await close_stale_sessions(user["_id"])
     cursor = db.get_db().sessions.find({"user_id": user["_id"]}, {"readings": 0}).sort("started_at", -1)
     return [SessionSummary(**to_summary(d)) async for d in cursor]
 

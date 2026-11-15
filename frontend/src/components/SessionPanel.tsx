@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, ApiError } from "../api";
+import { api, ApiError, getToken } from "../api";
 import { LOW_FOCUS_THRESHOLD, WINDOW_SECONDS } from "../attention/config";
 import type { AttentionController } from "../attention/controller";
+import { API_URL } from "../config";
+import { ReadingQueue } from "../readingQueue";
 import CountUp from "./CountUp";
 
 type Camera = "off" | "asking" | "loading" | "on" | "denied" | "error";
@@ -18,20 +20,50 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
   const [score, setScore] = useState<number | null>(null);
   const [faceFound, setFaceFound] = useState(true);
   const [fill, setFill] = useState(0);
-  const [saveWarning, setSaveWarning] = useState(false);
+  const [saveWarning, setSaveWarning] = useState("");
+  // השרת החזיר 409 למדידה: הסשן נסגר או הגיע למגבלת המדידות — לא מודדים יותר
+  const [sessionClosed, setSessionClosed] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const ctrlRef = useRef<AttentionController | null>(null);
   const sessionRef = useRef<string | null>(null);
+  const queueRef = useRef<ReadingQueue | null>(null);
   const startedAt = useRef(0);
   const getPositionRef = useRef(getPosition);
   getPositionRef.current = getPosition;
 
-  // ניקוי ביציאה מהעמוד: מכבים מצלמה וסוגרים סשן פתוח
+  // ניקוי במעבר לעמוד אחר באתר: מכבים מצלמה וסוגרים סשן פתוח
   useEffect(() => () => {
     ctrlRef.current?.stop();
+    queueRef.current?.stop();
     if (sessionRef.current) void api(`/api/sessions/${sessionRef.current}/end`, { method: "POST" }).catch(() => {});
   }, []);
+
+  // סגירת הלשונית או הדף: React לא מספיק לנקות, ולכן שולחים סיום עם keepalive (הבקשה ממשיכה גם אחרי שהדף נסגר)
+  useEffect(() => {
+    const onPageHide = () => {
+      const sid = sessionRef.current;
+      const token = getToken();
+      if (!sid || !token) return;
+      sessionRef.current = null; // כדי שהניקוי ב-unmount לא ישלח שוב
+      ctrlRef.current?.stop();
+      queueRef.current?.stop();
+      void fetch(`${API_URL}/api/sessions/${sid}/end`, {
+        method: "POST",
+        keepalive: true,
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, []);
+
+  function stopMeasuring() {
+    ctrlRef.current?.stop();
+    ctrlRef.current = null;
+    setCamera("off");
+    setScore(null);
+  }
 
   async function start() {
     setBusy(true);
@@ -40,6 +72,20 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
       const s = await api<{ id: string }>("/api/sessions", { method: "POST", body: { content_id: contentId } });
       sessionRef.current = s.id;
       startedAt.current = Date.now();
+      // מדידה שנכשלה נשלחת שוב (עד 3 פעמים); 409 = הסשן נסגר או מלא — מפסיקים למדוד
+      queueRef.current = new ReadingQueue(
+        (reading) => api(`/api/sessions/${s.id}/readings`, { method: "POST", body: reading }),
+        {
+          onSaved: (pending) => { if (pending === 0) setSaveWarning(""); },
+          onRetrying: () => setSaveWarning("שמירת הציון בשרת נכשלה. מנסים שוב…"),
+          onDropped: () => setSaveWarning("חלק מהציונים לא נשמרו בשרת."),
+          onClosed: () => {
+            setSessionClosed(true);
+            setSaveWarning("");
+            stopMeasuring();
+          },
+        },
+      );
       setSessionId(s.id);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "פתיחת הסשן נכשלה");
@@ -57,14 +103,12 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
     const { AttentionController } = await import("../attention/controller"); // נטען רק כשצריך
     const ctrl = new AttentionController({
       onFrame: (found, f) => { setFaceFound(found); setFill(f); },
+      onWindowReset: () => setScore(null), // הציון הקודם כבר לא תקף — ממתינים לציון חדש
       onScore: (p) => {
         setScore(p.score);
-        const sid = sessionRef.current;
-        if (!sid) return;
+        if (!sessionRef.current) return;
         const position = getPositionRef.current() ?? Number(((Date.now() - startedAt.current) / 1000).toFixed(1));
-        api(`/api/sessions/${sid}/readings`, { method: "POST", body: { position, score: p.score } })
-          .then(() => setSaveWarning(false))
-          .catch(() => setSaveWarning(true));
+        queueRef.current?.add({ position, score: p.score });
       },
       onError: (m) => setCameraMsg(m),
     });
@@ -93,13 +137,6 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
       setCamera("error");
       setCameraMsg("לא הצלחנו לטעון את מודל הקשב. אפשר להמשיך לצפות בלי מדידה.");
     }
-  }
-
-  function disableCamera() {
-    ctrlRef.current?.stop();
-    ctrlRef.current = null;
-    setCamera("off");
-    setScore(null);
   }
 
   async function end() {
@@ -138,7 +175,9 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
             <button className="btn secondary small" onClick={end} disabled={busy}>{busy ? "מסיים…" : "סיום הסשן"}</button>
           </div>
 
-          {(camera === "off" || camera === "denied" || camera === "error") && (
+          {sessionClosed && <p className="notice warn" role="alert">הסשן הסתיים או הגיע למגבלת המדידות</p>}
+
+          {!sessionClosed && (camera === "off" || camera === "denied" || camera === "error") && (
             <div className="consent">
               <h3>מדידת קשב במצלמה</h3>
               <ul>
@@ -163,7 +202,7 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
               <div className="score-box">
                 <div className="score-label">ציון קשב אחרון (בין 0 ל-1, גבוה = קשוב יותר)</div>
                 <div className={`score-value ${low ? "low" : ""}`} aria-live="polite">
-                  <CountUp value={score} decimals={2} />
+                  {score === null ? <span className="score-waiting">ממתין לציון...</span> : <CountUp value={score} decimals={2} />}
                 </div>
                 <div className="bar" aria-hidden="true">
                   <div className="bar__track"><div className={`bar__fill ${low ? "low" : ""}`} style={{ width: `${Math.round((score ?? 0) * 100)}%` }} /></div>
@@ -180,12 +219,12 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
           {measuring && (
             <div className="measure-status">
               {!faceFound && <p className="notice warn" role="alert">לא זוהו פנים. ודאו שהפנים שלכם נראים במצלמה.</p>}
-              {faceFound && score === null && <p className="muted" role="status">אוספים נתונים… הציון הראשון יופיע בעוד כ-{secondsLeft} שניות.</p>}
+              {faceFound && score === null && <p className="muted" role="status">אוספים נתונים… הציון יופיע בעוד כ-{secondsLeft} שניות.</p>}
               {faceFound && score !== null && <p className="muted">הציון מתעדכן כל כמה שניות.</p>}
               {low && <p className="notice alert" role="alert">הקשב שלכם ירד. אולי כדאי לקחת הפסקה קצרה או לחזור לקטע שהחמצתם.</p>}
-              {saveWarning && <p className="notice warn">שמירת הציון בשרת נכשלה. ננסה שוב בציון הבא.</p>}
+              {saveWarning && <p className="notice warn" role="status">{saveWarning}</p>}
               {cameraMsg && <p className="notice warn">{cameraMsg}</p>}
-              <button className="btn secondary small block" onClick={disableCamera}>כיבוי המצלמה (בלי לסיים סשן)</button>
+              <button className="btn secondary small block" onClick={stopMeasuring}>כיבוי המצלמה (בלי לסיים סשן)</button>
             </div>
           )}
         </>

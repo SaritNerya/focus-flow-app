@@ -365,3 +365,36 @@ def test_rate_limiter_memory_is_bounded():
     for ip in ("a", "b", "c", "d", "e"):
         assert rl.hit(ip) is None
     assert len(rl._hits) <= 3
+
+
+def test_stale_open_sessions_are_closed(client):
+    """סשן פתוח בלי מדידה 30 דקות נסגר בפתיחת סשן חדש / בבקשת הרשימה; ended_at = המדידה האחרונה או ההתחלה."""
+    from datetime import datetime, timedelta, timezone
+
+    from bson import ObjectId
+
+    register(client)
+    _, h = login(client)
+    c = client.post("/api/content", headers=h, json={"type": "text", "title": "t", "source": "טקסט ארוך לבדיקה"}).json()
+    new_session = lambda: client.post("/api/sessions", headers=h, json={"content_id": c["id"]}).json()["id"]
+    with_reading, no_readings, recent = new_session(), new_session(), new_session()
+    client.post(f"/api/sessions/{with_reading}/readings", headers=h, json={"position": 1, "score": 0.5})
+
+    # מזיזים זמנים אחורה ישירות במסד
+    now = datetime.now(timezone.utc)
+    long_ago, last_reading = now - timedelta(minutes=50), now - timedelta(minutes=40)
+    sessions = dbmod.get_db().sessions
+    client.portal.call(sessions.update_one, {"_id": ObjectId(with_reading)}, {"$set": {"started_at": long_ago, "readings.0.created_at": last_reading}})
+    client.portal.call(sessions.update_one, {"_id": ObjectId(no_readings)}, {"$set": {"started_at": long_ago}})
+    client.portal.call(sessions.update_one, {"_id": ObjectId(recent)}, {"$set": {"started_at": now - timedelta(minutes=10)}})
+
+    by_id = {s["id"]: s for s in client.get("/api/sessions", headers=h).json()}
+    as_dt = lambda v: datetime.fromisoformat(v.replace("Z", "+00:00"))
+    assert abs(as_dt(by_id[with_reading]["ended_at"]) - last_reading) < timedelta(seconds=1)   # זמן המדידה האחרונה
+    assert abs(as_dt(by_id[no_readings]["ended_at"]) - long_ago) < timedelta(seconds=1)        # זמן ההתחלה
+    assert by_id[recent]["ended_at"] is None                                                   # עדיין פעיל
+
+    # גם פתיחת סשן חדש סוגרת סשנים נטושים
+    client.portal.call(sessions.update_one, {"_id": ObjectId(recent)}, {"$set": {"started_at": long_ago}})
+    new_session()
+    assert client.get(f"/api/sessions/{recent}", headers=h).json()["ended_at"] is not None
