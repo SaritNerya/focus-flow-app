@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api, ApiError } from "../api";
 import { CONTENT_TYPES } from "../contentTypes";
 import EmptyState from "../components/EmptyState";
@@ -36,7 +36,7 @@ export default function Library() {
       </PageHeader>
 
       <div className="library-layout">
-        <AddItemForm onAdded={load} />
+        <AddItemForm />
 
         <section aria-labelledby="list-h">
           <h2 id="list-h" className="visually-hidden">הפריטים שלי</h2>
@@ -59,21 +59,21 @@ export default function Library() {
 }
 
 /** טופס הוספת פריט: בחירת סוג באריחים, כותרת ומקור. */
-function AddItemForm({ onAdded }: { onAdded: () => void }) {
+/** אחרי הוספה מוצלחת עוברים ישר לעמוד הפריט החדש (הוא כבר שמור בספרייה). */
+function AddItemForm() {
+  const nav = useNavigate();
   const [type, setType] = useState<ContentType>("youtube");
   const [title, setTitle] = useState("");
   const [source, setSource] = useState("");
-  const { busy, error, fields, success, run } = useApiForm();
+  const { busy, error, fields, run } = useApiForm();
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const ok = await run(() => api("/api/content", { method: "POST", body: { type, title, source } }), {
-      success: "הפריט נוסף לספרייה",
+    let created: ContentItem | undefined;
+    const ok = await run(async () => {
+      created = await api<ContentItem>("/api/content", { method: "POST", body: { type, title, source } });
     });
-    if (!ok) return;
-    setTitle("");
-    setSource("");
-    onAdded();
+    if (ok && created) nav(`/content/${created.id}`);
   }
 
   function pickType(t: ContentType) {
@@ -118,7 +118,7 @@ function AddItemForm({ onAdded }: { onAdded: () => void }) {
           </Field>
         )}
 
-        <FormStatus error={error} success={success} />
+        <FormStatus error={error} />
         <button className="btn block" type="submit" disabled={busy}>{busy ? "מוסיף…" : "הוספה לספרייה"}</button>
       </form>
     </section>
