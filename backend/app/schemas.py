@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 from .config import settings
 
@@ -97,6 +97,8 @@ class AccountDelete(BaseModel):
 
 # ---------- content ----------
 ContentType = Literal["youtube", "text", "web"]
+# אורך מרבי לקישור לפי סוג (לטקסט יש מגבלה משלו ב-content_service)
+MAX_SOURCE_LEN = {"youtube": 200, "web": 2048}
 
 
 class ContentIn(BaseModel):
@@ -110,6 +112,14 @@ class ContentIn(BaseModel):
         v = v.strip()
         if not 1 <= len(v) <= 120:
             raise ValueError("הכותרת חייבת להכיל בין 1 ל-120 תווים")
+        return v
+
+    @field_validator("source")
+    @classmethod
+    def _source_len(cls, v: str, info: ValidationInfo) -> str:
+        limit = MAX_SOURCE_LEN.get(info.data.get("type", ""))
+        if limit and len(v.strip()) > limit:
+            raise ValueError(f"הקישור ארוך מדי (עד {limit} תווים)")
         return v
 
 
@@ -130,8 +140,9 @@ class SessionCreate(BaseModel):
 
 
 class ReadingIn(BaseModel):
-    position: float = Field(ge=0, allow_inf_nan=False)   # שניות בסרטון / מיקום בטקסט (0..1 או אינדקס)
-    score: float = Field(ge=0, le=1, allow_inf_nan=False)
+    # strict: רק מספר JSON (מחרוזת כמו "0.5" נדחית). מספר שלם עדיין מתקבל
+    position: float = Field(ge=0, allow_inf_nan=False, strict=True)   # שניות בסרטון / מיקום בטקסט (0..1 או אינדקס)
+    score: float = Field(ge=0, le=1, allow_inf_nan=False, strict=True)
 
 
 class ReadingOut(BaseModel):

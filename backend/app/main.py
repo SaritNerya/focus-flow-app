@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from . import db
 from .config import settings
 from .errors import install_handlers
+from .limits import BodySizeLimitMiddleware
 from .routes import auth, content, sessions, users
 
 
@@ -18,6 +19,8 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="FocusFlow API", version="1.0.0", lifespan=lifespan)
+# קודם ההגבלה ואחריה CORS: ה-middleware האחרון שנוסף עוטף את כולם, כך שגם תשובת 413 מקבלת כותרות CORS
+app.add_middleware(BodySizeLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_list,

@@ -9,6 +9,7 @@ from ..config import settings
 from ..deps import current_user
 from ..errors import ApiError
 from ..google_auth import verify_google_credential
+from ..limits import rate_limited
 from ..schemas import GoogleLoginIn, LoginIn, RegisterIn, RegisterOut, TokenOut
 from ..security import create_token, hash_password, verify_password
 
@@ -21,7 +22,7 @@ def issue_token(user: dict) -> TokenOut:
     return TokenOut(access_token=token, expires_in=expires_in)
 
 
-@router.post("/register", response_model=RegisterOut, status_code=201)
+@router.post("/register", response_model=RegisterOut, status_code=201, dependencies=[Depends(rate_limited("register"))])
 async def register(body: RegisterIn):
     database = db.get_db()
     if await database.users.find_one({"email": body.email}):
@@ -62,7 +63,7 @@ async def _register_failure(email: str) -> None:
         await coll.update_one({"_id": email}, {"$set": {"locked_until": until, "expire_at": until, "count": 0}})
 
 
-@router.post("/login", response_model=TokenOut)
+@router.post("/login", response_model=TokenOut, dependencies=[Depends(rate_limited("login"))])
 async def login(body: LoginIn):
     database = db.get_db()
     await _check_lock(body.email)

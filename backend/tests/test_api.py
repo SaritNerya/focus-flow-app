@@ -245,3 +245,123 @@ def test_error_format(client):
     assert error_detail(broken, 422) == {"detail": "גוף הבקשה אינו JSON תקין"}
     error_detail(client.post("/api/users/me/password", headers=h, json={"current_password": "wrong", "new_password": "newpassword1"}), 400)
     error_detail(client.post("/api/auth/google", json={"credential": "x"}), 503)   # Google לא מוגדר בבדיקות
+
+
+# ---------- הקשחה: סוד JWT, קלט קפדני, גודל בקשה, הגבלת קצב ----------
+
+def test_secret_jwt_required(monkeypatch):
+    """בלי SECRET_JWT, או קצר מ-32 תווים, השרת נעצר בעלייה — וההודעה לא כוללת את הערך."""
+    from app import config
+
+    monkeypatch.delenv("SECRET_JWT", raising=False)
+    with pytest.raises(SystemExit) as missing:
+        config.load_settings()
+    assert "SECRET_JWT" in str(missing.value) and "חסר" in str(missing.value)
+
+    short = "short-secret-123"
+    monkeypatch.setenv("SECRET_JWT", short)
+    with pytest.raises(SystemExit) as weak:
+        config.load_settings()
+    assert "32" in str(weak.value) and short not in str(weak.value)
+
+    monkeypatch.setenv("SECRET_JWT", "s" * 32)
+    assert config.load_settings().secret_jwt == "s" * 32
+
+
+def test_reading_values_are_strict(client):
+    register(client)
+    _, h = login(client)
+    c = client.post("/api/content", headers=h, json={"type": "text", "title": "t", "source": "טקסט ארוך לבדיקה"}).json()
+    sid = client.post("/api/sessions", headers=h, json={"content_id": c["id"]}).json()["id"]
+    url = f"/api/sessions/{sid}/readings"
+    assert "score" in error_detail(client.post(url, headers=h, json={"position": 1, "score": "0.5"}), 422)["fields"]
+    assert "position" in error_detail(client.post(url, headers=h, json={"position": "1", "score": 0.5}), 422)["fields"]
+    assert client.post(url, headers=h, json={"position": 1, "score": 1}).status_code == 201       # מספר שלם — תקין
+
+
+def test_source_max_length(client):
+    register(client)
+    _, h = login(client)
+    long_yt = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&x=" + "a" * 200
+    assert "source" in error_detail(client.post("/api/content", headers=h, json={"type": "youtube", "title": "t", "source": long_yt}), 422)["fields"]
+    long_web = "https://example.com/" + "a" * 2048
+    assert "source" in error_detail(client.post("/api/content", headers=h, json={"type": "web", "title": "t", "source": long_web}), 422)["fields"]
+    ok = client.post("/api/content", headers=h, json={"type": "youtube", "title": "t", "source": "https://youtu.be/dQw4w9WgXcQ"})
+    assert ok.status_code == 201
+
+
+def test_body_size_limit(client):
+    from app.limits import MAX_BODY_BYTES
+
+    register(client)
+    _, h = login(client)
+    big = {"type": "text", "title": "t", "source": "a" * (MAX_BODY_BYTES + 10)}
+    assert "1MB" in error_detail(client.post("/api/content", headers=h, json=big), 413)["detail"]      # לפי Content-Length
+
+    def chunks():  # בלי Content-Length (chunked): נספר בזמן הקריאה
+        yield b'{"type": "text", "title": "t", "source": "'
+        for _ in range(5):
+            yield b"a" * (MAX_BODY_BYTES // 4)
+        yield b'"}'
+
+    r = client.post("/api/content", headers={**h, "Content-Type": "application/json"}, content=chunks())
+    assert "content-length" not in {k.lower() for k in r.request.headers}
+    error_detail(r, 413)
+    small = {"type": "text", "title": "t", "source": "a" * 100_000}
+    assert client.post("/api/content", headers=h, json=small).status_code == 201
+
+
+def _login_attempt(c, i, **headers):
+    # בכל פעם אימייל אחר, כדי שנעילת החשבון (לפי אימייל) לא תתערב
+    return c.post("/api/auth/login", json={"email": f"nobody{i}@x.com", "password": "password1"}, headers=headers)
+
+
+def test_rate_limit_login_and_register(client):
+    from app.config import settings
+
+    limit = settings.rate_limit_per_minute
+    for i in range(limit):
+        assert _login_attempt(client, i).status_code == 401
+    blocked = _login_attempt(client, limit)
+    error_detail(blocked, 429)
+    assert int(blocked.headers["Retry-After"]) >= 1
+    # מונה נפרד לכל נתיב: הרשמה עדיין עובדת
+    for i in range(limit):
+        assert register(client, email=f"r{i}@x.com").status_code == 201
+    error_detail(register(client, email="one-more@x.com"), 429)
+
+
+def test_rate_limit_ignores_forwarded_for_without_trusted_proxy(client):
+    """בלי פרוקסי מהימן (ברירת המחדל) X-Forwarded-For לא נקרא — אי אפשר לעקוף בהחלפת הכותרת."""
+    from app.config import settings
+
+    for i in range(settings.rate_limit_per_minute):
+        _login_attempt(client, i, **{"X-Forwarded-For": f"10.0.0.{i}"})
+    error_detail(_login_attempt(client, 99, **{"X-Forwarded-For": "8.8.8.8"}), 429)
+
+
+def test_rate_limit_behind_trusted_proxy(client, monkeypatch):
+    """מאחורי פרוקסי אחד (Cloud Run): הלקוח הוא הכתובת האחרונה. ערכים שהלקוח מוסיף לפניה לא עוזרים."""
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "trusted_proxy_hops", 1)
+    for i in range(settings.rate_limit_per_minute):
+        assert _login_attempt(client, i, **{"X-Forwarded-For": "203.0.113.7"}).status_code == 401
+    error_detail(_login_attempt(client, 50, **{"X-Forwarded-For": "203.0.113.7"}), 429)
+    # זיוף: הלקוח שם כתובת אחרת בתחילת הכותרת — הפרוקסי עדיין מוסיף את הכתובת האמיתית בסוף
+    error_detail(_login_attempt(client, 51, **{"X-Forwarded-For": "1.2.3.4, 203.0.113.7"}), 429)
+    # לקוח אמיתי אחר — מונה משלו
+    assert _login_attempt(client, 52, **{"X-Forwarded-For": "198.51.100.9"}).status_code == 401
+    # כותרת קצרה מהמצופה או כתובת לא תקינה: לא סומכים עליה, ונופלים לכתובת החיבור
+    monkeypatch.setattr(settings, "trusted_proxy_hops", 2)
+    assert _login_attempt(client, 53, **{"X-Forwarded-For": "198.51.100.10"}).status_code == 401
+    assert _login_attempt(client, 54, **{"X-Forwarded-For": "not-an-ip, 198.51.100.11"}).status_code == 401
+
+
+def test_rate_limiter_memory_is_bounded():
+    from app.limits import RateLimiter
+
+    rl = RateLimiter(limit=1, window=60, max_keys=3)
+    for ip in ("a", "b", "c", "d", "e"):
+        assert rl.hit(ip) is None
+    assert len(rl._hits) <= 3

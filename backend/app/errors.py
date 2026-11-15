@@ -10,10 +10,11 @@ FIELD_STATUSES = (409, 422)
 class ApiError(Exception):
     """שגיאה בפורמט הנדרש: {"detail": "..."} (+ fields לשדות בטופס, ב-409 וב-422 בלבד)."""
 
-    def __init__(self, status: int, message: str, fields: dict[str, str] | None = None):
+    def __init__(self, status: int, message: str, fields: dict[str, str] | None = None, headers: dict[str, str] | None = None):
         self.status = status
         self.message = message
         self.fields = fields or {}
+        self.headers = headers or {}
 
 
 def error_body(message: str, fields: dict[str, str] | None = None) -> dict:
@@ -44,8 +45,8 @@ def install_handlers(app) -> None:
     @app.exception_handler(ApiError)
     async def api_error(_: Request, exc: ApiError):
         fields = exc.fields if exc.status in FIELD_STATUSES else None
-        headers = {"WWW-Authenticate": "Bearer"} if exc.status == 401 else None
-        return JSONResponse(status_code=exc.status, content=error_body(exc.message, fields), headers=headers)
+        headers = {**exc.headers, **({"WWW-Authenticate": "Bearer"} if exc.status == 401 else {})}
+        return JSONResponse(status_code=exc.status, content=error_body(exc.message, fields), headers=headers or None)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error(_: Request, exc: StarletteHTTPException):
