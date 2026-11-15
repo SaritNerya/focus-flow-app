@@ -27,6 +27,7 @@ services:
       MONGO_URL: mongodb://mongo:27017
       # חובה (לפחות 32 תווים). בלי זה compose נעצר כאן עם הודעה, במקום שהשרת ייפול בעלייה
       SECRET_JWT: ${SECRET_JWT:?SECRET_JWT חסר ב-.env}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     depends_on:
       mongo:
         condition: service_healthy
