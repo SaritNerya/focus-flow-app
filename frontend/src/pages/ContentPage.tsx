@@ -47,7 +47,7 @@ export default function ContentPage() {
   const info = CONTENT_TYPES[item.type];
   return (
     <>
-      <PageHeader title={item.title} shape={info.shape} color={info.color} subtitle={info.label} back={{ to: "/", label: "חזרה לספרייה" }} />
+      <PageHeader title={item.title} shape={info.shape} color={info.color} subtitle={info.label} back={{ to: "/library", label: "חזרה לספרייה" }} />
       <div className="content-layout">
         <section className="card viewer" aria-label="תצוגת התוכן">
           {item.type === "youtube" && item.youtube_id && (

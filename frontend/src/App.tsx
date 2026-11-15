@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Home from "./pages/Home";
 import Library from "./pages/Library";
 import ContentPage from "./pages/ContentPage";
 import History from "./pages/History";
@@ -15,7 +16,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<Library />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/library" element={<Library />} />
         <Route path="/content/:id" element={<ContentPage />} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:id" element={<SessionPage />} />

@@ -29,7 +29,7 @@ export default function History() {
       {rows === null && !error && <Loader />}
       {rows?.length === 0 && (
         <EmptyState title="עדיין אין סשנים">
-          פתחו פריט מ<Link to="/">הספרייה</Link> ולחצו "התחלת סשן" — הציונים יופיעו כאן.
+          פתחו פריט מ<Link to="/library">הספרייה</Link> ולחצו "התחלת סשן" — הציונים יופיעו כאן.
         </EmptyState>
       )}
 

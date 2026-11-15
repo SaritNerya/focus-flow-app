@@ -7,7 +7,8 @@ import Shape, { type ShapeKind } from "./Shape";
 import UserMenu from "./UserMenu";
 
 const NAV: { to: string; label: string; shape: ShapeKind; color: string; end?: boolean }[] = [
-  { to: "/", label: "הספרייה שלי", shape: "circle", color: "var(--red)", end: true },
+  { to: "/", label: "בית", shape: "triangle", color: "var(--yellow)", end: true },
+  { to: "/library", label: "הספרייה שלי", shape: "circle", color: "var(--red)" },
   { to: "/history", label: "היסטוריה", shape: "square", color: "var(--blue)" },
 ];
 
@@ -22,7 +23,7 @@ export default function Layout() {
       <a href="#main" className="skip-link">דילוג לתוכן</a>
       <header className="site-header">
         <div className="container header-inner">
-          <Link to="/" className="brand" aria-label="FocusFlow — לספרייה"><Logo /></Link>
+          <Link to="/" className="brand" aria-label="FocusFlow — לדף הבית"><Logo /></Link>
           <nav className="main-nav" aria-label="ניווט ראשי">
             {NAV.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end} style={{ "--nav-color": n.color } as CSSProperties}>
