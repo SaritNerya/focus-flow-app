@@ -398,3 +398,11 @@ def test_stale_open_sessions_are_closed(client):
     client.portal.call(sessions.update_one, {"_id": ObjectId(recent)}, {"$set": {"started_at": long_ago}})
     new_session()
     assert client.get(f"/api/sessions/{recent}", headers=h).json()["ended_at"] is not None
+
+
+def test_security_headers(client):
+    """כותרות אבטחה על כל תשובה — גם על שגיאה."""
+    for r in (client.get("/health"), client.get("/api/users/me"), client.get("/api/no-such-route")):
+        assert r.headers["X-Content-Type-Options"] == "nosniff"
+        assert r.headers["X-Frame-Options"] == "DENY"
+        assert r.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"

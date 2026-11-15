@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -18,6 +18,12 @@ async def lifespan(_: FastAPI):
     await db.close()
 
 
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+}
+
 app = FastAPI(title="FocusFlow API", version="1.0.0", lifespan=lifespan)
 # קודם ההגבלה ואחריה CORS: ה-middleware האחרון שנוסף עוטף את כולם, כך שגם תשובת 413 מקבלת כותרות CORS
 app.add_middleware(BodySizeLimitMiddleware)
@@ -28,6 +34,15 @@ app.add_middleware(
     allow_headers=["*"],  # הטוקן נשלח בכותרת Authorization, לא בעוגיות
 )
 install_handlers(app)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """כותרות אבטחה על כל תשובה (גם שגיאות). נוסף אחרון — ולכן עוטף את כל השאר."""
+    response = await call_next(request)
+    for name, value in SECURITY_HEADERS.items():
+        response.headers.setdefault(name, value)
+    return response
 
 
 @app.get("/health")
