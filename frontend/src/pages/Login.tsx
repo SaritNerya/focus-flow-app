@@ -21,7 +21,7 @@ export default function Login() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (await run(() => login(email, password))) nav("/", { replace: true });
+    if (await run(() => login(email, password))) nav("/library", { replace: true });
   }
 
   return (

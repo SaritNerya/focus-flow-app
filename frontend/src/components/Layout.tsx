@@ -2,6 +2,7 @@ import { Link, NavLink, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../auth";
 import Loader from "./Loader";
 import Logo from "./Logo";
+import ServerUnavailable from "./ServerUnavailable";
 import UserMenu from "./UserMenu";
 
 const NAV: { to: string; label: string; end?: boolean }[] = [
@@ -12,8 +13,9 @@ const NAV: { to: string; label: string; end?: boolean }[] = [
 
 /** מעטפת למסכי משתמש מחובר: לוגו, ניווט (בנייד — סרגל תחתון) ותפריט משתמש. משתמש לא מחובר מועבר להתחברות. */
 export default function Layout() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, offline, logout } = useAuth();
   if (loading) return <Loader />;
+  if (offline) return <ServerUnavailable />; // השרת לא זמין: לא מעבירים להתחברות, הטוקן נשמר
   if (!user) return <Navigate to="/login" replace />;
 
   return (

@@ -1,10 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, getToken, setToken } from "./api";
+import { api, ApiError, getToken, setToken } from "./api";
 import type { TokenOut, User } from "./types";
 
 interface AuthValue {
   user: User | null;
   loading: boolean;
+  /** בדיקת הטוקן בטעינה נכשלה בגלל רשת/שרת (לא 401): הטוקן נשמר ומוצגת הודעת "אין חיבור לשרת". */
+  offline: boolean;
+  /** ניסיון חוזר לבדוק את הטוקן מול השרת. */
+  retrySession: () => void;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: (credential: string) => Promise<void>;
   register: (email: string, password: string, display_name: string) => Promise<void>;
@@ -22,13 +26,27 @@ export const useAuth = () => useContext(Ctx);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(!!getToken()); // רענון הדף לא מתנתק
+  const [offline, setOffline] = useState(false);
 
   const refreshUser = useCallback(async () => setUser(await api<User>("/api/users/me")), []);
 
-  useEffect(() => {
+  // בדיקת הטוקן השמור. רק 401 מנתק (api() כבר מוחק את הטוקן ומודיע). שגיאת רשת או 500 — הטוקן נשמר
+  const checkSession = useCallback(async () => {
     if (!getToken()) return;
-    refreshUser().catch(() => setToken(null)).finally(() => setLoading(false));
+    setLoading(true);
+    setOffline(false);
+    try {
+      await refreshUser();
+    } catch (e) {
+      if (!(e instanceof ApiError && e.status === 401)) setOffline(true);
+    } finally {
+      setLoading(false);
+    }
   }, [refreshUser]);
+
+  useEffect(() => {
+    void checkSession();
+  }, [checkSession]);
 
   useEffect(() => {
     const onUnauthorized = () => setUser(null);
@@ -70,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ user, loading, login, loginWithGoogle, register, logout, refreshUser, updateDisplayName, changePassword, deleteAccount }}>
+    <Ctx.Provider value={{ user, loading, offline, retrySession: () => void checkSession(), login, loginWithGoogle, register, logout, refreshUser, updateDisplayName, changePassword, deleteAccount }}>
       {children}
     </Ctx.Provider>
   );

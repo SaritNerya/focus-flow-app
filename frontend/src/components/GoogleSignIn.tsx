@@ -62,7 +62,7 @@ export default function GoogleSignIn({ mode }: { mode: "signin" | "signup" }) {
   // ה-callback של Google נקבע פעם אחת; ה-ref שומר תמיד את הגרסה העדכנית
   const onCredential = useRef<(credential: string) => void>(() => {});
   onCredential.current = async (credential) => {
-    if (await run(() => loginWithGoogle(credential))) nav("/", { replace: true });
+    if (await run(() => loginWithGoogle(credential))) nav("/library", { replace: true });
   };
 
   useEffect(() => {

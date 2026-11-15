@@ -10,7 +10,7 @@ import { useApiForm } from "../hooks/useApiForm";
 import { CONFIRM_HINT, PASSWORD_HINT, validateNewPassword } from "../validation";
 
 export default function Register() {
-  const { user, register, login } = useAuth();
+  const { user, register } = useAuth();
   const nav = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,14 +25,8 @@ export default function Register() {
     const ok = await run(() => register(email, password, displayName), {
       validate: () => validateNewPassword(password, confirm),
     });
-    if (!ok) return;
-    // התחברות אוטומטית אחרי הרשמה — ישר לאתר
-    try {
-      await login(email, password);
-      nav("/", { replace: true });
-    } catch {
-      nav("/login", { replace: true, state: { notice: "ההרשמה הצליחה! אפשר להתחבר." } });
-    }
+    // אחרי הרשמה לא מתחברים אוטומטית: עוברים למסך ההתחברות עם הודעה
+    if (ok) nav("/login", { replace: true, state: { notice: "ההרשמה הצליחה, אפשר להתחבר" } });
   }
 
   return (
