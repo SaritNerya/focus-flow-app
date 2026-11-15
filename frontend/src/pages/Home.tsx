@@ -120,9 +120,9 @@ function SessionsOverview({ sessions }: { sessions: SessionSummary[] }) {
     <>
       <ResumeCard session={sessions[0]} />
 
-      <section className="summary" aria-labelledby="summary-h">
+      <section className="card summary" aria-labelledby="summary-h">
         <h2 id="summary-h" className="visually-hidden">סיכום</h2>
-        <div className="card summary__average">
+        <div className="summary__average">
           <span className="mono">ציון קשב ממוצע</span>
           <div className={`giant score-big ${low ? "low" : ""}`}><CountUp value={stats.averageScore} decimals={2} /></div>
           <p className="muted">
@@ -130,7 +130,7 @@ function SessionsOverview({ sessions }: { sessions: SessionSummary[] }) {
             {low && " · מתחת לסף ההתראה"}
           </p>
         </div>
-        <div className="card summary__legend">
+        <div className="summary__legend">
           <h3 className="mono summary__legend-title">מקרא</h3>
           <Legend
             rows={[
@@ -154,11 +154,11 @@ function SessionsOverview({ sessions }: { sessions: SessionSummary[] }) {
         </div>
       </section>
 
-      <section className="card" aria-labelledby="chart-h">
+      <section className="card home-chart" aria-labelledby="chart-h">
         <h2 id="chart-h">הקשב שלי בסשנים האחרונים</h2>
         {chart.length > 0 ? (
           <>
-            <p className="muted">חתך המסלול: הציון הממוצע ב-{chart.length} הסשנים האחרונים שבהם נמדד קשב, מהישן (שמאל) לחדש (ימין). העבירו את העכבר על נקודה לפרטים.</p>
+            <p className="muted">{chart.length} הסשנים האחרונים עם מדידות, מהישן (שמאל) לחדש (ימין). מעבר עם העכבר על נקודה מציג פרטים.</p>
             <FocusChart sessions={chart} />
           </>
         ) : (
@@ -194,9 +194,9 @@ function ResumeCard({ session }: { session: SessionSummary }) {
 
 function BestHours({ hours }: { hours: HourStat[] }) {
   return (
-    <section className="card" aria-labelledby="hours-h">
+    <section className="card home-side" aria-labelledby="hours-h">
       <h2 id="hours-h">שעות הקשב הטובות שלי</h2>
-      <p className="muted">לפי שעת ההתחלה של הסשנים (בשעון המכשיר שלכם), מתוך סשנים עם מדידות. מוצג מ-{MIN_SESSIONS_FOR_HOURS} סשנים ומעלה.</p>
+      <p className="muted">לפי שעת ההתחלה של סשנים עם מדידות (שעון המכשיר). מוצג מ-{MIN_SESSIONS_FOR_HOURS} סשנים ומעלה.</p>
       <ol className="best-hours stagger">
         {hours.map((h, i) => (
           <li key={h.hour} style={{ "--i": i } as CSSProperties}>
@@ -213,7 +213,7 @@ function BestHours({ hours }: { hours: HourStat[] }) {
 
 function RecentItems({ items }: { items: ContentItem[] }) {
   return (
-    <section className="card" aria-labelledby="recent-h">
+    <section className="card home-side" aria-labelledby="recent-h">
       <div className="list-head">
         <h2 id="recent-h">פריטים אחרונים בספרייה</h2>
         <Link to="/library">לכל הספרייה</Link>

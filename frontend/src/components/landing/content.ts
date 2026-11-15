@@ -13,12 +13,18 @@ export const CTA_LINKS: CtaLink[] = [
   { to: "/login", label: "התחברות", className: "btn secondary" },
 ];
 
-export const HERO: SectionText = {
-  title: "לומדים בקשב",
+export interface HeroText { eyebrow: string; titleStart: string; titleAccent: string; lead: string; note: string }
+
+export const HERO: HeroText = {
+  eyebrow: "מדידת קשב דרך המצלמה, בתוך הדפדפן",
+  titleStart: "לומדים",
+  titleAccent: "בקשב",
   lead: "FocusFlow מעריך את רמת הקשב שלכם דרך המצלמה בזמן שאתם צופים בסרטון או קוראים טקסט, ומתריע כשהריכוז יורד.",
+  note: "הווידאו לא עוזב את המכשיר · החישוב נעשה בדפדפן",
 };
 
-export const HOW_IT_WORKS: SectionText & { steps: ShapedItem[] } = {
+export const HOW_IT_WORKS: SectionText & { eyebrow: string; steps: ShapedItem[] } = {
+  eyebrow: "המסלול",
   title: "איך זה עובד",
   steps: [
     { shape: "circle", color: "var(--lake)", title: "מוסיפים תוכן", text: "סרטון YouTube, טקסט או דף אינטרנט." },
@@ -27,7 +33,8 @@ export const HOW_IT_WORKS: SectionText & { steps: ShapedItem[] } = {
   ],
 };
 
-export const FEATURES: SectionText & { items: ShapedItem[] } = {
+export const FEATURES: SectionText & { eyebrow: string; items: ShapedItem[] } = {
+  eyebrow: "הציוד",
   title: "מה מקבלים",
   items: [
     { shape: "circle", color: "var(--lake)", title: "ספרייה אישית", text: "סרטונים, טקסטים ודפי אינטרנט שאתם לומדים מהם, במקום אחד." },

@@ -3,7 +3,7 @@ import type { ScoredSession } from "../homeStats";
 import { fmtDate, fmtScore, isLowScore } from "../pages/History";
 
 // מידות ה-viewBox. ה-SVG נמתח לרוחב הכרטיס; בטלפון יש רוחב מינימלי וגלילה אופקית.
-const W = 640, H = 240;
+const W = 640, H = 210;
 const M = { top: 20, right: 20, bottom: 36, left: 44 };
 const PLOT_W = W - M.left - M.right;
 const PLOT_H = H - M.top - M.bottom;

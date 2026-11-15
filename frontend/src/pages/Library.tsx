@@ -90,7 +90,7 @@ function AddItemForm() {
             return (
               <label key={t} className="type-option" style={{ "--type-color": info.color } as CSSProperties}>
                 <input type="radio" name="type" value={t} checked={type === t} onChange={() => pickType(t)} className="visually-hidden" />
-                <span className="type-option__tile"><Shape kind={info.shape} color={info.color} />{info.label}</span>
+                <span className="type-option__tile"><span className="type-option__chip"><Shape kind={info.shape} color={info.color} /></span>{info.label}</span>
               </label>
             );
           })}
@@ -102,8 +102,8 @@ function AddItemForm() {
         </Field>
 
         {type === "text" ? (
-          <Field label="הטקסט לקריאה" htmlFor="source" error={fields.source} hint="הדביקו כאן מאמר או כל טקסט ארוך">
-            <textarea id="source" rows={4} value={source} onChange={(e) => setSource(e.target.value)} />
+          <Field label="הטקסט לקריאה" htmlFor="source" error={fields.source}>
+            <textarea id="source" rows={3} value={source} onChange={(e) => setSource(e.target.value)} placeholder="הדביקו כאן מאמר או כל טקסט ארוך" />
           </Field>
         ) : (
           <Field

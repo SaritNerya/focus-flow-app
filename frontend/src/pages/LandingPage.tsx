@@ -19,8 +19,10 @@ export default function LandingPage() {
         <Hero />
         <HowItWorks />
         <Features />
-        <PrivacyNote />
-        <HonestNote />
+        <div className="landing-trust">
+          <PrivacyNote />
+          <HonestNote />
+        </div>
         <FinalCta />
       </main>
       <footer className="landing-footer">{SITE_NAME}</footer>

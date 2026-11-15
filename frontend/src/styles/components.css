@@ -21,7 +21,7 @@
 .actions { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
 
 /* ---------- טפסים: שדות עם קו תחתון בלבד ---------- */
-.field { display: grid; gap: var(--s1); margin-bottom: var(--s5); }
+.field { display: grid; align-content: start; gap: var(--s1); margin-bottom: var(--s4); }
 .field label, .field legend { font-weight: 600; }
 
 input, select, textarea {
@@ -112,7 +112,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--summit-hover); }
 /* ---------- טבלאות: קווים דקים בלבד (בנייד הופכות לשורות) ---------- */
 .table-wrap { overflow-x: auto; padding: 0; }
 table { width: 100%; border-collapse: collapse; }
-th, td { text-align: start; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); }
+th, td { text-align: start; padding: var(--s2) var(--s4); border-bottom: 1px solid var(--line); }
 th { font-family: var(--font-mono); font-size: var(--fs-mono); font-weight: 400; letter-spacing: .08em; color: var(--ink-soft); white-space: nowrap; }
 tbody tr:last-child td { border-bottom: 0; }
 tr.highlight td { background: color-mix(in srgb, var(--paper-deep) 55%, transparent); }

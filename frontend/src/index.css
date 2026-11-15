@@ -1,4 +1,4 @@
-/* נקודת הכניסה של העיצוב. הסדר חשוב: גופנים → משתנים → בסיס → רכיבים → מבנה → רקע המפה → עמודים */
+/* נקודת הכניסה של העיצוב. הסדר חשוב: גופנים → משתנים → בסיס → רכיבים → מבנה → רקע המפה → עמודים → דף נחיתה */
 @import "./styles/fonts.css";
 @import "./styles/tokens.css";
 @import "./styles/base.css";
@@ -6,3 +6,4 @@
 @import "./styles/layout.css";
 @import "./styles/topo.css";
 @import "./styles/pages.css";
+@import "./styles/landing.css";

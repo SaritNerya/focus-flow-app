@@ -41,18 +41,18 @@ export default function History() {
 
       {rows && rows.length > 0 && (
         <div className="card table-wrap">
-          <table className="responsive-table">
+          <table className="responsive-table history-table">
             <thead><tr><th>תאריך</th><th>תוכן</th><th>מדידות</th><th>ציון קשב ממוצע (0–1)</th><th><span className="visually-hidden">פעולות</span></th></tr></thead>
             <tbody className="stagger">
               {rows.map((r, i) => (
                 <tr key={r.id} className={r.id === latest?.id ? "highlight" : undefined} style={{ "--i": i } as CSSProperties}>
-                  <td data-label="תאריך" className="num">{fmtDate(r.started_at)}</td>
-                  <td data-label="תוכן">{r.content_title ?? "פריט שנמחק"}</td>
-                  <td data-label="מדידות" className="num">{r.reading_count}</td>
-                  <td data-label="ציון ממוצע" className="num">
+                  <td data-label="תאריך" className="num history-table__date">{fmtDate(r.started_at)}</td>
+                  <td data-label="תוכן" className="history-table__title">{r.content_title ?? "פריט שנמחק"}</td>
+                  <td data-label="מדידות" className="num history-table__count">{r.reading_count}</td>
+                  <td data-label="ציון ממוצע" className="num history-table__score">
                     <span>{fmtScore(r.average_score)}{r.id === latest?.id && <span className="badge">אחרון</span>}</span>
                   </td>
-                  <td><Link className="table-link" to={`/history/${r.id}`}>פרטים</Link></td>
+                  <td className="history-table__link"><Link className="table-link" to={`/history/${r.id}`}>פרטים</Link></td>
                 </tr>
               ))}
             </tbody>

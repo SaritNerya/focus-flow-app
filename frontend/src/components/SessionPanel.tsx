@@ -156,30 +156,36 @@ export default function SessionPanel({ contentId, getPosition }: { contentId: st
           {camera === "asking" && <p role="status">ממתינים לאישור המצלמה בדפדפן…</p>}
           {camera === "loading" && <p role="status">טוענים את מודל הקשב, זה לוקח כמה שניות…</p>}
 
-          <video ref={videoRef} className={`preview ${measuring || camera === "loading" ? "" : "hidden"}`} muted playsInline aria-label="תצוגה מקדימה של המצלמה" />
-
-          {measuring && (
-            <div className="score-box">
-              <div className="score-label">ציון קשב אחרון (בין 0 ל-1, גבוה = קשוב יותר)</div>
-              <div className={`score-value ${low ? "low" : ""}`} aria-live="polite">
-                <CountUp value={score} decimals={2} />
-              </div>
-              <div className="bar" aria-hidden="true">
-                <div className="bar__track"><div className={`bar__fill ${low ? "low" : ""}`} style={{ width: `${Math.round((score ?? 0) * 100)}%` }} /></div>
-                <div className="bar__scale mono">
-                  <span>0</span>
-                  <span className="bar__threshold" style={{ insetInlineStart: `${LOW_FOCUS_THRESHOLD * 100}%` }}>{LOW_FOCUS_THRESHOLD}</span>
-                  <span>1</span>
+          {/* תצוגת המצלמה והציון זו לצד זו — כדי שכל הפאנל ייכנס למסך בלי לגלול */}
+          <div className={`measure ${measuring ? "measuring" : ""}`}>
+            <video ref={videoRef} className={`preview ${measuring || camera === "loading" ? "" : "hidden"}`} muted playsInline aria-label="תצוגה מקדימה של המצלמה" />
+            {measuring && (
+              <div className="score-box">
+                <div className="score-label">ציון קשב אחרון (בין 0 ל-1, גבוה = קשוב יותר)</div>
+                <div className={`score-value ${low ? "low" : ""}`} aria-live="polite">
+                  <CountUp value={score} decimals={2} />
+                </div>
+                <div className="bar" aria-hidden="true">
+                  <div className="bar__track"><div className={`bar__fill ${low ? "low" : ""}`} style={{ width: `${Math.round((score ?? 0) * 100)}%` }} /></div>
+                  <div className="bar__scale mono">
+                    <span>0</span>
+                    <span className="bar__threshold" style={{ insetInlineStart: `${LOW_FOCUS_THRESHOLD * 100}%` }}>{LOW_FOCUS_THRESHOLD}</span>
+                    <span>1</span>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
 
+          {measuring && (
+            <div className="measure-status">
               {!faceFound && <p className="notice warn" role="alert">לא זוהו פנים. ודאו שהפנים שלכם נראים במצלמה.</p>}
               {faceFound && score === null && <p className="muted" role="status">אוספים נתונים… הציון הראשון יופיע בעוד כ-{secondsLeft} שניות.</p>}
               {faceFound && score !== null && <p className="muted">הציון מתעדכן כל כמה שניות.</p>}
               {low && <p className="notice alert" role="alert">הקשב שלכם ירד. אולי כדאי לקחת הפסקה קצרה או לחזור לקטע שהחמצתם.</p>}
               {saveWarning && <p className="notice warn">שמירת הציון בשרת נכשלה. ננסה שוב בציון הבא.</p>}
               {cameraMsg && <p className="notice warn">{cameraMsg}</p>}
-              <button className="btn secondary block" onClick={disableCamera}>כיבוי המצלמה (בלי לסיים סשן)</button>
+              <button className="btn secondary small block" onClick={disableCamera}>כיבוי המצלמה (בלי לסיים סשן)</button>
             </div>
           )}
         </>
