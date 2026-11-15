@@ -4,3 +4,33 @@
 @import "./styles/components.css";
 @import "./styles/layout.css";
 @import "./styles/pages.css";
+
+/* ===== דף נחיתה ציבורי (pages/LandingPage, components/landing) =====
+   משתמש במחלקות הקיימות (btn, card, notice, welcome-steps, site-header); כאן רק מה שחסר. */
+.landing { display: grid; gap: var(--s7); }
+.landing > * { min-width: 0; }
+.landing-section > h2 { margin-bottom: var(--s4); }
+.landing-section > :last-child { margin-bottom: 0; }
+
+.landing-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: var(--s6); }
+.landing-hero h1 { font-size: clamp(2.4rem, 1.4rem + 4vw, 4rem); font-weight: 900; line-height: 1.05; margin-bottom: var(--s4); }
+.landing-lead { max-width: 46ch; font-size: 1.15rem; margin-bottom: var(--s5); }
+.landing-hero__art { display: block; width: 100%; height: auto; border: 3px solid var(--ink); box-shadow: var(--shadow-lg); }
+.landing-cta .btn { min-width: 9rem; font-size: 1.05rem; }
+
+.landing-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s4); margin: 0; padding: 0; list-style: none; }
+.landing-features .card-title svg { width: 18px; height: 18px; flex: none; }
+
+.landing-privacy { margin: 0; padding-inline-start: var(--s5); display: grid; gap: var(--s2); }
+.landing-final { text-align: center; }
+.landing-final .landing-cta { justify-content: center; }
+
+.landing-footer { padding: var(--s5) var(--s4); text-align: center; font-weight: 700; border-top: 3px solid var(--ink); background: var(--surface); }
+
+@media (max-width: 760px) {
+  .landing { gap: var(--s6); }
+  .landing.page { padding-bottom: var(--s6); } /* אין כאן סרגל ניווט תחתון */
+  .landing-hero { grid-template-columns: 1fr; gap: var(--s5); }
+  .landing-hero__art { height: 160px; }
+  .landing-cta .btn { flex: 1; }
+}

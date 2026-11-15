@@ -9,14 +9,17 @@ import History from "./pages/History";
 import SessionPage from "./pages/SessionPage";
 import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
+import RootRoute from "./components/RootRoute";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/" element={<RootRoute />}>
+        <Route index element={<Home />} />
+      </Route>
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
         <Route path="/library" element={<Library />} />
         <Route path="/content/:id" element={<ContentPage />} />
         <Route path="/history" element={<History />} />
