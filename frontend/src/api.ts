@@ -5,7 +5,7 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (t: string | null) =>
   t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
 
-/** שגיאות לפי שם שדה, כפי שהשרת מחזיר ב-fields. */
+/** שגיאות לפי שם שדה, כפי שהשרת מחזיר ב-fields (ב-409 וב-422). */
 export type FieldErrors = Record<string, string>;
 
 export class ApiError extends Error {
@@ -36,7 +36,9 @@ export async function api<T>(path: string, { method = "GET", body, auth = true }
       setToken(null);
       window.dispatchEvent(new Event("auth:unauthorized")); // הלקוח יעביר להתחברות
     }
-    throw new ApiError(res.status, data.message ?? "אירעה שגיאה. נסו שוב", data.fields ?? {});
+    // פורמט השגיאה של השרת: {"detail": "..."}, וב-409/422 גם fields (הודעה לכל שדה בטופס)
+    const detail = typeof data.detail === "string" ? data.detail : "אירעה שגיאה. נסו שוב";
+    throw new ApiError(res.status, detail, data.fields ?? {});
   }
   return data as T;
 }

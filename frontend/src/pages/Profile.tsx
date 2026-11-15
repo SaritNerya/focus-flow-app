@@ -114,25 +114,27 @@ function GoogleAccountNote() {
 
 function PasswordForm() {
   const { changePassword } = useAuth();
+  const nav = useNavigate();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
-  const { busy, error, fields, success, run } = useApiForm();
+  const { busy, error, fields, run } = useApiForm();
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const ok = await run(() => changePassword(current, next), {
-      validate: () => ({
-        ...requireField(current, "current_password", "יש להזין את הסיסמה הנוכחית"),
-        ...validateNewPassword(next, confirm, "new_password"),
-      }),
-      success: "הסיסמה הוחלפה. החיבורים בשאר המכשירים נותקו.",
-    });
-    if (ok) {
-      setCurrent("");
-      setNext("");
-      setConfirm("");
-    }
+    // אחרי ההחלפה הטוקן נפסל: מתנתקים ועוברים להתחברות עם הסיסמה החדשה
+    await run(
+      async () => {
+        await changePassword(current, next);
+        nav("/login", { replace: true, state: { notice: "הסיסמה הוחלפה, יש להתחבר מחדש" } });
+      },
+      {
+        validate: () => ({
+          ...requireField(current, "current_password", "יש להזין את הסיסמה הנוכחית"),
+          ...validateNewPassword(next, confirm, "new_password"),
+        }),
+      },
+    );
   }
 
   return (
@@ -148,7 +150,7 @@ function PasswordForm() {
         <Field label="אימות סיסמה חדשה" htmlFor="confirm_new_password" error={fields.confirm} hint={CONFIRM_HINT}>
           <PasswordInput id="confirm_new_password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required noPaste />
         </Field>
-        <FormStatus error={error} success={success} />
+        <FormStatus error={error} />
         <button className="btn" type="submit" disabled={busy}>{busy ? "מחליף…" : "החלפת סיסמה"}</button>
       </form>
     </section>

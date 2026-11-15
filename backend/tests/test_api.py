@@ -29,6 +29,15 @@ def login(c, email="a@b.com", pw="password1"):
     return r, ({"Authorization": f"Bearer {r.json()['access_token']}"} if r.status_code == 200 else None)
 
 
+def error_detail(r, status: int) -> dict:
+    """בודק את פורמט השגיאה: {"detail": "<הודעה>"}, ו-fields רק ב-409 וב-422."""
+    body = r.json()
+    assert r.status_code == status, body
+    assert isinstance(body["detail"], str) and body["detail"]
+    assert set(body) <= ({"detail", "fields"} if status in (409, 422) else {"detail"})
+    return body
+
+
 def test_health(client):
     assert client.get("/health").json() == {"status": "ok"}
 
@@ -38,14 +47,14 @@ def test_register_rules(client):
     assert r.status_code == 201 and "password" not in r.text and r.json()["email"] == "a@b.com"
     assert register(client, email="A@B.com").status_code == 409          # בלי הבדל בין גדולות לקטנות
     r = register(client, email="x@y.com", pw="short")
-    assert r.status_code == 422 and "8" in r.json()["message"]
+    assert "8" in error_detail(r, 422)["detail"]
     assert register(client, email="bad").status_code == 422
 
 
 def test_login_logout_and_token(client):
     register(client)
     r, _ = login(client, pw="wrongpass1")
-    assert r.status_code == 401 and "message" in r.json()
+    error_detail(r, 401)
     r, h = login(client)
     assert r.status_code == 200 and r.json()["token_type"] == "bearer"
     assert client.get("/api/users/me").status_code == 401
@@ -60,7 +69,7 @@ def test_lockout(client):
     register(client)
     for _ in range(5):
         assert login(client, pw="nope-nope")[0].status_code == 401
-    assert login(client)[0].status_code == 429                            # גם סיסמה נכונה נחסמת
+    error_detail(login(client)[0], 429)                                    # גם סיסמה נכונה נחסמת
 
 
 def test_content_and_isolation(client):
@@ -156,24 +165,24 @@ def test_profile_password_delete(client):
     _, h = login(client)
     assert client.patch("/api/users/me", headers=h, json={"display_name": "חדש"}).json()["display_name"] == "חדש"
     bad = client.post("/api/users/me/password", headers=h, json={"current_password": "x", "new_password": "newpassword1"})
-    assert bad.status_code == 400 and "current_password" in bad.json()["fields"]
+    assert error_detail(bad, 400)["detail"] == "הסיסמה הנוכחית שגויה"
     same = client.post("/api/users/me/password", headers=h, json={"current_password": "password1", "new_password": "password1"})
-    assert same.status_code == 400 and "new_password" in same.json()["fields"]
+    error_detail(same, 400)
     weak = client.post("/api/users/me/password", headers=h, json={"current_password": "password1", "new_password": "onlyletters"})
-    assert weak.status_code == 422 and "new_password" in weak.json()["fields"]
+    assert "new_password" in error_detail(weak, 422)["fields"]
     ok = client.post("/api/users/me/password", headers=h, json={"current_password": "password1", "new_password": "newpassword1"})
-    assert ok.status_code == 200
-    assert client.get("/api/users/me", headers=h).status_code == 401      # טוקן ישן נפסל
-    h = {"Authorization": f"Bearer {ok.json()['access_token']}"}
-    assert client.get("/api/users/me", headers=h).status_code == 200      # הטוקן החדש עובד
+    assert ok.status_code == 204 and ok.content == b""                     # בלי גוף
+    assert client.get("/api/users/me", headers=h).status_code == 401      # הטוקן הנוכחי נפסל
     assert login(client, pw="password1")[0].status_code == 401
+    r, h = login(client, pw="newpassword1")                                # מתחברים מחדש עם הסיסמה החדשה
+    assert r.status_code == 200 and client.get("/api/users/me", headers=h).status_code == 200
 
     # מחיקת חשבון: דורשת סיסמה ומוחקת גם את כל הנתונים
     c = client.post("/api/content", headers=h, json={"type": "text", "title": "t", "source": "א" * 500}).json()
     client.post("/api/sessions", headers=h, json={"content_id": c["id"]})
     assert client.request("DELETE", "/api/users/me", headers=h).status_code == 422
     wrong = client.request("DELETE", "/api/users/me", headers=h, json={"password": "wrong1234"})
-    assert wrong.status_code == 400 and "password" in wrong.json()["fields"]
+    error_detail(wrong, 400)
     assert client.request("DELETE", "/api/users/me", headers=h, json={"password": "newpassword1"}).status_code == 204
     assert client.get("/api/users/me", headers=h).status_code == 401
     assert login(client, pw="newpassword1")[0].status_code == 401
@@ -203,7 +212,7 @@ def test_google_login_creates_user_without_password(client, monkeypatch):
     # אין סיסמה: החלפת סיסמה נחסמת, ומחיקה מאושרת באימייל
     assert client.post("/api/users/me/password", headers=h, json={"current_password": "a", "new_password": "newpass12"}).status_code == 400
     bad = client.request("DELETE", "/api/users/me", headers=h, json={"email": "other@gmail.com"})
-    assert bad.status_code == 400 and "email" in bad.json()["fields"]
+    error_detail(bad, 400)
     assert client.request("DELETE", "/api/users/me", headers=h, json={"email": "G@gmail.com"}).status_code == 204
 
 
@@ -220,3 +229,19 @@ def test_google_not_configured(client, monkeypatch):
     monkeypatch.setattr("app.google_auth.settings.google_client_id", "")
     r = client.post("/api/auth/google", json={"credential": "x"})
     assert r.status_code == 503
+
+
+def test_error_format(client):
+    """כל השגיאות בפורמט {"detail": "..."}; fields רק ב-409 וב-422."""
+    register(client)
+    _, h = login(client)
+    error_detail(client.get("/api/users/me"), 401)
+    error_detail(client.get("/api/content/000000000000000000000000", headers=h), 404)
+    error_detail(client.get("/api/content/not-an-id", headers=h), 404)
+    error_detail(client.get("/api/no-such-route"), 404)
+    assert "email" in error_detail(register(client), 409)["fields"]
+    assert "score" in error_detail(client.post("/api/sessions/000000000000000000000000/readings", headers=h, json={"position": 1, "score": 2}), 422)["fields"]
+    broken = client.post("/api/auth/register", content=b"{bad json", headers={"Content-Type": "application/json"})
+    assert error_detail(broken, 422) == {"detail": "גוף הבקשה אינו JSON תקין"}
+    error_detail(client.post("/api/users/me/password", headers=h, json={"current_password": "wrong", "new_password": "newpassword1"}), 400)
+    error_detail(client.post("/api/auth/google", json={"credential": "x"}), 503)   # Google לא מוגדר בבדיקות

@@ -59,10 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateDisplayName = async (display_name: string) => {
     setUser(await api<User>("/api/users/me", { method: "PATCH", body: { display_name } }));
   };
-  // השרת פוסל את כל הטוקנים הישנים ומחזיר טוקן חדש — כך נשארים מחוברים רק במכשיר הזה
+  // השרת פוסל את כל הטוקנים (גם את הנוכחי), ולכן אחרי ההחלפה מתנתקים ומתחברים מחדש
   const changePassword = async (current_password: string, new_password: string) => {
-    const t = await api<TokenOut>("/api/users/me/password", { method: "POST", body: { current_password, new_password } });
-    setToken(t.access_token);
+    await api("/api/users/me/password", { method: "POST", body: { current_password, new_password } });
+    clearSession();
   };
   const deleteAccount: AuthValue["deleteAccount"] = async (confirmation) => {
     await api("/api/users/me", { method: "DELETE", body: confirmation });
