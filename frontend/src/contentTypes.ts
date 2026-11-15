@@ -1,11 +1,11 @@
 import type { ShapeKind } from "./components/Shape";
 import type { ContentType } from "./types";
 
-/** לכל סוג תוכן: שם, צורה וצבע — כדי לזהות אותו במבט בכל האתר. */
-export const CONTENT_TYPES: Record<ContentType, { label: string; shape: ShapeKind; color: string; soft: string }> = {
-  youtube: { label: "סרטון YouTube", shape: "circle", color: "var(--red)", soft: "var(--red-soft)" },
-  text: { label: "טקסט", shape: "square", color: "var(--blue)", soft: "var(--blue-soft)" },
-  web: { label: "דף אינטרנט", shape: "triangle", color: "var(--yellow)", soft: "var(--yellow-soft)" },
+/** לכל סוג תוכן: שם, סמל מפה וצבע שביל — כדי לזהות אותו במבט בכל האתר. */
+export const CONTENT_TYPES: Record<ContentType, { label: string; shape: ShapeKind; color: string }> = {
+  youtube: { label: "סרטון YouTube", shape: "circle", color: "var(--lake)" },
+  text: { label: "טקסט", shape: "square", color: "var(--moss)" },
+  web: { label: "דף אינטרנט", shape: "triangle", color: "var(--ochre)" },
 };
 
 /** סוג תוכן מהשרת עלול להיות חסר (פריט שנמחק) — מחזיר undefined במקרה כזה. */

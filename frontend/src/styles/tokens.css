@@ -1,27 +1,52 @@
-/* ===== משתני עיצוב (Design tokens) — סגנון באוהאוס =====
-   שלושת צבעי היסוד + שחור ונייר. כל צבע/מרווח באתר מגיע מכאן. */
+/* ===== משתני עיצוב — "קווי גובה" (מפה טופוגרפית) =====
+   כל צבע, גופן ומרווח באתר מגיע מכאן. ערכת הלילה מוגדרת ב-[data-theme="dark"] על <html>. */
 :root {
+  color-scheme: light;
+
   /* צבעים */
-  --paper: #f4efe6;        /* רקע: נייר חם */
-  --surface: #ffffff;      /* כרטיסים ושדות */
-  --ink: #151515;          /* טקסט וקווים */
-  --muted: #57534c;        /* טקסט משני (ניגודיות AA על נייר ועל לבן) */
-  --red: #d7261e;
-  --red-dark: #a91c16;
-  --red-soft: #fde4e1;
-  --yellow: #f4b400;
-  --yellow-soft: #fff3cc;
-  --blue: #1d4e9e;
-  --blue-dark: #153a77;
-  --blue-soft: #e4ecf8;
+  --paper: #E2D6B8;
+  --paper-deep: #D4C59F;
+  --surface: #F2EAD3;
+  --ink: #16352A;
+  --ink-soft: #3E5A4C;
+  --contour: #16352A;
+  --summit: #D2482A;          /* צורות, קווים, המטפס וטקסט גדול מ-24px בלבד */
+  --summit-hover: #B03A20;
+  --summit-press: #8E301B;
+  --moss: #3F7D3A;
+  --ochre: #E3A322;           /* רקע או קישוט בלבד — לא צבע טקסט */
+  --lake: #1F6F94;
+  --line: rgba(22, 53, 42, .28);
+  --line-strong: rgba(22, 53, 42, .65);
 
-  /* טיפוגרפיה */
-  --font: "Rubik", "Heebo", "Segoe UI", system-ui, Arial, sans-serif;
+  /* צבעים לפי תפקיד (מאפשרים לערכת הלילה לשמור על ניגודיות) */
+  --accent-bg: var(--summit-hover);       /* כפתור ראשי */
+  --accent-bg-hover: var(--summit-press);
+  --on-accent: var(--surface);            /* טקסט על כפתור ראשי */
+  --on-ochre: var(--ink);                 /* טקסט על רקע ochre */
+  --danger-text: var(--summit-hover);     /* טקסט שגיאה קטן — רק על --surface */
+  --card-bg: color-mix(in srgb, var(--surface) 92%, transparent);
 
-  /* קווים וצללים "קשיחים" */
-  --bw: 2px;                          /* עובי קו */
-  --shadow: 4px 4px 0 var(--ink);
-  --shadow-lg: 8px 8px 0 var(--ink);
+  /* גופנים */
+  --font-display: "Suez One", "Assistant", serif;
+  --font-body: "Assistant", system-ui, "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "Assistant", monospace;
+
+  /* סולם טיפוגרפי */
+  --fs-giant: clamp(72px, 11vw, 160px);
+  --fs-h1: clamp(44px, 6vw, 92px);
+  --fs-h2: 32px;
+  --fs-h3: 22px;
+  --fs-body: 17px;
+  --fs-small: 14px;
+  --fs-mono: 12px;
+
+  /* קווים, פינות וצללים קשיחים */
+  --radius-btn: 2px;
+  --radius-card: 4px;
+  --border: 1px solid var(--line-strong);
+  --shadow: 4px 4px 0 var(--line);
+  --shadow-hover: 6px 6px 0 var(--line);
 
   /* מרווחים */
   --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem; --s5: 1.5rem; --s6: 2rem; --s7: 3rem;
@@ -30,5 +55,30 @@
   --container: 1120px;
   --header-h: 68px;
   --bottom-nav-h: 64px;
-  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #10231C;
+  --paper-deep: #0B1A15;
+  --surface: #173229;
+  --ink: #F0E6CC;
+  --ink-soft: #BFB497;
+  --contour: #F0E6CC;
+  --summit: #FF6A45;
+  --summit-hover: #FF8A6B;
+  --summit-press: #FFA88F;
+  --moss: #6DB860;
+  --ochre: #F5BC3F;
+  --lake: #4FA7D1;
+  --line: rgba(240, 230, 204, .22);
+  --line-strong: rgba(240, 230, 204, .55);
+
+  --accent-bg: var(--summit);
+  --accent-bg-hover: var(--summit-hover);
+  --on-accent: var(--paper);
+  --on-ochre: var(--paper);
+  --danger-text: var(--summit);
 }

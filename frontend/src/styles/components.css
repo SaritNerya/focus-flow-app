@@ -1,150 +1,175 @@
 /* ===== רכיבים משותפים ===== */
 
-/* ---------- כפתורים: צל קשיח שמתרומם במעבר עכבר ו"נלחץ" בלחיצה ---------- */
+/* ---------- כפתורים ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
-  min-height: 44px; padding: .6rem 1.25rem;
-  font: 600 1rem/1.2 var(--font); text-decoration: none; white-space: nowrap;
-  color: #fff; background: var(--blue);
-  border: var(--bw) solid var(--ink); border-radius: 0;
-  box-shadow: var(--shadow);
+  min-height: 44px; padding: 10px 22px;
+  font: 400 var(--fs-body)/1.2 var(--font-display); text-decoration: none; white-space: nowrap;
+  color: var(--on-accent); background: var(--accent-bg);
+  border: 1.5px solid var(--accent-bg); border-radius: var(--radius-btn);
   cursor: pointer;
-  transition: transform .15s var(--ease), box-shadow .15s var(--ease), background-color .15s;
 }
-.btn:hover { color: #fff; background: var(--blue-dark); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
-.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
-.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: var(--shadow); }
+.btn:hover { color: var(--on-accent); background: var(--accent-bg-hover); border-color: var(--accent-bg-hover); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
 
-.btn.secondary { color: var(--ink); background: var(--surface); }
-.btn.secondary:hover { color: var(--ink); background: var(--yellow-soft); }
-.btn.accent { color: var(--ink); background: var(--yellow); }
-.btn.accent:hover { color: var(--ink); background: #e0a500; }
-.btn.danger { background: var(--red); }
-.btn.danger:hover { background: var(--red-dark); }
-.btn.small { min-height: 36px; padding: .35rem .85rem; font-size: .9rem; box-shadow: 3px 3px 0 var(--ink); }
-.btn.small:active { transform: translate(3px, 3px); }
-.btn.block { width: 100%; }
+/* משני: שקוף עם מסגרת דיו. גם "מחיקה" ו"סיום הסשן" */
+.btn.secondary { font-family: var(--font-body); font-weight: 600; color: var(--ink); background: transparent; border-color: var(--ink); }
+.btn.secondary:hover:not(:disabled) { color: var(--surface); background: var(--ink); }
+.btn.small { min-height: 36px; padding: 6px 14px; font-size: var(--fs-small); }
+.btn.block { width: 100%; white-space: normal; }
 
 .actions { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
 
-/* ---------- טפסים ---------- */
-.field { display: grid; gap: var(--s1); margin-bottom: var(--s4); }
+/* ---------- טפסים: שדות עם קו תחתון בלבד ---------- */
+.field { display: grid; gap: var(--s1); margin-bottom: var(--s5); }
 .field label, .field legend { font-weight: 600; }
-.field small { font-size: .85rem; }
 
 input, select, textarea {
-  width: 100%; min-height: 46px;
-  padding: .6rem .8rem;
+  width: 100%; min-height: 44px;
+  padding: .5rem .1rem;
   font: inherit; color: var(--ink);
-  background: var(--surface);
-  border: var(--bw) solid var(--ink); border-radius: 0;
-  transition: box-shadow .15s var(--ease);
+  background: transparent;
+  border: 0; border-bottom: 2px solid var(--ink-soft); border-radius: 0;
 }
 textarea { resize: vertical; line-height: 1.6; }
-input:focus, select:focus, textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--yellow); }
-input[aria-invalid="true"] { border-color: var(--red); }
-::placeholder { color: #8a857c; }
+input:focus, select:focus, textarea:focus { border-bottom-color: var(--summit); }
+input[aria-invalid="true"] { border-bottom-color: var(--summit-hover); }
+::placeholder { color: var(--ink-soft); opacity: .8; }
 
-/* תיבת סימון בסגנון ריבוע */
+/* תיבת סימון: ריבוע עם מסגרת מלאה */
 .checkbox { display: flex; gap: var(--s3); align-items: flex-start; margin-bottom: var(--s4); cursor: pointer; }
 .checkbox input {
-  appearance: none; flex: none; width: 24px; height: 24px; min-height: 0; padding: 0; margin-top: 2px;
-  display: grid; place-items: center; cursor: pointer;
+  appearance: none; flex: none; display: grid; place-items: center;
+  width: 22px; height: 22px; min-height: 0; padding: 0; margin-top: 3px;
+  border: 1.5px solid var(--ink); border-radius: var(--radius-btn); cursor: pointer;
 }
-.checkbox input:checked { background: var(--red); }
+.checkbox input:checked { background: var(--ink); }
 .checkbox input:checked::after { content: ""; width: 10px; height: 10px; background: var(--surface); }
 
 /* שדה סיסמה עם כפתור עין */
 .password-wrap { position: relative; }
 .password-wrap input { padding-inline-end: 3rem; }
 .eye-btn {
-  position: absolute; inset-inline-end: 6px; top: 50%; transform: translateY(-50%);
-  display: grid; place-items: center; width: 36px; height: 36px; padding: 0;
-  color: var(--muted); background: transparent; border: 0; cursor: pointer;
+  position: absolute; inset-inline-end: 0; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 40px; height: 40px; padding: 0;
+  color: var(--ink-soft); background: transparent; border: 0; border-radius: var(--radius-btn); cursor: pointer;
 }
-.eye-btn:hover { color: var(--ink); background: var(--yellow-soft); }
+.eye-btn:hover { color: var(--ink); }
 
 /* ---------- כרטיסים ---------- */
 .card {
-  background: var(--surface);
-  border: var(--bw) solid var(--ink);
   padding: var(--s5);
+  background: var(--card-bg);
+  border: var(--border); border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
 }
 .card > :last-child { margin-bottom: 0; }
-.card.pop-yellow { box-shadow: 8px 8px 0 var(--yellow); }
-.card.pop-blue { box-shadow: 8px 8px 0 var(--blue); }
-.card.pop-red { box-shadow: 8px 8px 0 var(--red); }
-
-/* כותרת כרטיס עם צורה צבעונית */
+.card > h2:first-child {
+  padding-bottom: var(--s3); margin-bottom: var(--s4);
+  border-bottom: 1px solid var(--line);
+}
 .card-title { display: flex; align-items: center; gap: var(--s3); }
 
-/* ---------- הודעות ---------- */
-.error { color: var(--red-dark); font-weight: 500; margin: var(--s2) 0; }
-.success { color: var(--blue); font-weight: 600; margin: var(--s2) 0; }
-.success::before, .error::before {
-  content: ""; display: inline-block; width: .6em; height: .6em; margin-inline-end: .5em; background: currentColor;
-}
-.success::before { border-radius: 50%; }
-.field .error::before { display: none; }
+/* ---------- סמל מפה (Shape) ---------- */
+.map-symbol { flex: none; width: 1em; height: 1em; }
 
-.notice { padding: var(--s3) var(--s4); border: var(--bw) solid var(--ink); font-weight: 500; }
-.notice.info { background: var(--blue-soft); }
-.notice.warn { background: var(--yellow-soft); }
-.notice.danger { color: #fff; background: var(--red); font-weight: 600; }
+/* ---------- מקרא בסגנון מפה: סמל, שם, ערך במונו ---------- */
+.legend { display: grid; margin: 0; padding: 0; list-style: none; }
+.legend li { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: var(--s1) var(--s3); padding: var(--s3) 0; border-top: 1px solid var(--line); }
+.legend li:first-child { border-top: 0; padding-top: 0; }
+.legend li:last-child { padding-bottom: 0; }
+.legend .map-symbol { align-self: center; }
+.legend__value { font-family: var(--font-mono); font-size: 1.05rem; text-align: end; unicode-bidi: plaintext; }
+.legend__sub { grid-column: 2 / -1; font-size: var(--fs-small); color: var(--ink-soft); overflow-wrap: anywhere; }
+
+/* ---------- הודעות: תמיד עם סימן, לא רק צבע ---------- */
+.error, .success { font-weight: 600; margin: var(--s2) 0; }
+.error { color: var(--ink); }
+.card .error { color: var(--danger-text); }
+.error::before { content: "✕"; content: "✕" / ""; margin-inline-end: .45em; color: var(--summit); }
+.success { color: var(--ink); }
+.success::before { content: "●"; content: "●" / ""; margin-inline-end: .45em; color: var(--moss); }
+
+.notice { padding: var(--s3) var(--s4); border: var(--border); border-radius: var(--radius-card); font-weight: 600; }
+.notice.info { background: var(--surface); }
+.notice.warn { color: var(--ink); background: var(--paper-deep); }
+/* התראת קשב נמוך: פס ochre עם ▲ */
+.notice.alert { color: var(--on-ochre); background: var(--ochre); border-color: var(--ochre); }
+.notice.alert::before { content: "▲"; content: "▲" / ""; margin-inline-end: .5em; }
 
 /* ---------- תגיות ---------- */
 .tag {
-  display: inline-flex; align-items: center; gap: .4em;
-  padding: .15rem .6rem; font-size: .8rem; font-weight: 600;
-  background: var(--surface); border: var(--bw) solid var(--ink);
+  display: inline-flex; align-items: center; gap: .45em;
+  padding: .1rem .5rem; font-family: var(--font-mono); font-size: var(--fs-mono); letter-spacing: .08em;
+  border: var(--border); border-radius: var(--radius-btn);
 }
 .badge {
-  display: inline-block; margin-inline-start: var(--s2); padding: .05rem .5rem;
-  font-size: .75rem; font-weight: 700; color: var(--ink); background: var(--yellow); border: 1.5px solid var(--ink);
+  display: inline-block; margin-inline-start: var(--s2); padding: 0 .45rem;
+  font-family: var(--font-mono); font-size: var(--fs-mono); letter-spacing: .08em;
+  color: var(--on-ochre); background: var(--ochre); border-radius: var(--radius-btn);
 }
 
-/* ---------- טבלאות (בנייד הופכות לכרטיסים) ---------- */
+/* ---------- טבלאות: קווים דקים בלבד (בנייד הופכות לשורות) ---------- */
 .table-wrap { overflow-x: auto; padding: 0; }
 table { width: 100%; border-collapse: collapse; }
-th, td { text-align: start; padding: var(--s3) var(--s4); border-bottom: 1px solid #d8d2c6; }
-th { font-size: .85rem; font-weight: 700; color: #fff; background: var(--ink); white-space: nowrap; }
-tbody tr:hover td { background: var(--yellow-soft); }
+th, td { text-align: start; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-size: var(--fs-mono); font-weight: 400; letter-spacing: .08em; color: var(--ink-soft); white-space: nowrap; }
 tbody tr:last-child td { border-bottom: 0; }
-tr.highlight td { background: var(--blue-soft); font-weight: 600; }
+tr.highlight td { background: color-mix(in srgb, var(--paper-deep) 55%, transparent); }
+.table-link { font-weight: 600; white-space: nowrap; }
 
 @media (max-width: 640px) {
   .responsive-table thead { display: none; }
-  .responsive-table tr { display: block; padding: var(--s3) var(--s4); border-bottom: var(--bw) solid var(--ink); }
+  .responsive-table tr { display: block; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); }
   .responsive-table tr:last-child { border-bottom: 0; }
   .responsive-table td { display: flex; justify-content: space-between; gap: var(--s4); padding: var(--s1) 0; border: 0; }
-  .responsive-table td::before { content: attr(data-label); font-weight: 600; color: var(--muted); }
+  .responsive-table td::before { content: attr(data-label); font-family: var(--font-mono); font-size: var(--fs-mono); letter-spacing: .08em; color: var(--ink-soft); }
   .responsive-table td:empty { display: none; }
 }
 
-/* ---------- טוען: שלוש צורות קופצות ---------- */
-.loader { display: flex; justify-content: center; align-items: center; gap: var(--s3); padding: var(--s7) 0; }
-.loader span { width: 18px; height: 18px; border: var(--bw) solid var(--ink); animation: hop 1s var(--ease) infinite; }
-.loader span:nth-child(1) { background: var(--red); border-radius: 50%; }
-.loader span:nth-child(2) { background: var(--yellow); animation-delay: .15s; }
-.loader span:nth-child(3) { background: var(--blue); animation-delay: .3s; }
-@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } }
+/* ---------- טוען: קו רכס שמתמלא ---------- */
+.loader { display: flex; justify-content: center; padding: var(--s7) 0; }
+.loader svg { width: 140px; height: 40px; overflow: visible; }
+.loader path { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.loader__track { opacity: .25; }
 
 /* ---------- מפריד "או" ---------- */
-.divider { display: flex; align-items: center; gap: var(--s3); margin: var(--s5) 0 var(--s4); color: var(--muted); font-weight: 600; }
-.divider::before, .divider::after { content: ""; flex: 1; border-top: var(--bw) solid var(--ink); }
+.divider { display: flex; align-items: center; gap: var(--s3); margin: var(--s5) 0 var(--s4); font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--ink-soft); }
+.divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--line-strong); }
 
 /* ---------- כפתור Google ----------
    הכפתור שרואים (face) מעוצב אצלנו; מעליו יושב הכפתור האמיתי של Google — שקוף — שמקבל את הלחיצה. */
-.google-btn { position: relative; height: 48px; }
+.google-btn { position: relative; height: 46px; }
 .google-btn__face {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center; gap: var(--s3);
-  font-weight: 600; color: var(--ink); background: var(--surface);
-  border: var(--bw) solid var(--ink); box-shadow: var(--shadow);
-  transition: transform .15s var(--ease), box-shadow .15s var(--ease), background-color .15s;
+  font-weight: 600; color: var(--ink); background: transparent;
+  border: 1.5px solid var(--ink); border-radius: var(--radius-btn);
 }
 .google-btn__hit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: .0001; overflow: hidden; }
-.google-btn:hover .google-btn__face { background: var(--yellow-soft); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
-.google-btn:focus-within .google-btn__face { outline: 3px solid var(--blue); outline-offset: 3px; }
+.google-btn:hover .google-btn__face { background: color-mix(in srgb, var(--paper-deep) 60%, transparent); }
+.google-btn:focus-within .google-btn__face { outline: 2px solid var(--ink); outline-offset: 3px; }
 .google-btn.is-loading .google-btn__face { opacity: .6; }
-.google-btn.is-busy .google-btn__face { transform: translate(4px, 4px); box-shadow: none; }
+.google-btn.is-busy .google-btn__face { background: var(--paper-deep); }
+
+/* ---------- מצב ריק ---------- */
+.empty { display: grid; justify-items: center; gap: var(--s3); padding: var(--s7) var(--s5); text-align: center; }
+.empty svg { width: 120px; height: 56px; }
+.empty p { max-width: 40ch; margin: 0; }
+
+/* ---------- תנועה (רק למי שלא ביקש פחות תנועה) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .btn, .google-btn__face { transition: background-color .15s, color .15s, border-color .15s; }
+  input, select, textarea { transition: border-color .15s; }
+
+  /* ריחוף על כרטיס אינטראקטיבי */
+  .lift { transition: transform .15s var(--ease), box-shadow .15s var(--ease); }
+  .lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+
+  /* הופעה מדורגת של רשימות (פעם אחת, כשהפריט נוצר) */
+  .stagger > * { animation: rise .32s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+
+  .loader__fill { stroke-dasharray: 1; animation: ridge-fill 1.4s var(--ease) infinite; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes ridge-fill { from { stroke-dashoffset: 1; } to { stroke-dashoffset: -1; } }

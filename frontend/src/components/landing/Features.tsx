@@ -7,8 +7,8 @@ export default function Features() {
       <h2 id="landing-features">{FEATURES.title}</h2>
       <ul className="landing-features">
         {FEATURES.items.map((f) => (
-          <li key={f.title} className="card">
-            <h3 className="card-title"><Shape kind={f.shape} color={f.color} outline />{f.title}</h3>
+          <li key={f.title} className="card lift">
+            <h3 className="card-title"><Shape kind={f.shape} color={f.color} />{f.title}</h3>
             <p className="muted">{f.text}</p>
           </li>
         ))}

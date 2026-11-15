@@ -10,7 +10,7 @@ export default function HowItWorks() {
         {HOW_IT_WORKS.steps.map((s, i) => (
           <li key={s.title}>
             <span className="welcome-steps__num" aria-hidden="true">
-              <Shape kind={s.shape} color={s.color} outline />{i + 1}
+              <Shape kind={s.shape} color={s.color} />{i + 1}
             </span>
             <h3>{s.title}</h3>
             <p className="muted">{s.text}</p>

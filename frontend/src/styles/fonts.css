@@ -1,0 +1,12 @@
+/* ===== גופנים מקומיים (בלי Google Fonts). רק התת-קבוצות והמשקלים שבשימוש; כולם font-display: swap ===== */
+@import "@fontsource/suez-one/hebrew-400.css";
+@import "@fontsource/suez-one/latin-400.css";
+@import "@fontsource/assistant/hebrew-300.css";
+@import "@fontsource/assistant/latin-300.css";
+@import "@fontsource/assistant/hebrew-400.css";
+@import "@fontsource/assistant/latin-400.css";
+@import "@fontsource/assistant/hebrew-600.css";
+@import "@fontsource/assistant/latin-600.css";
+@import "@fontsource/assistant/hebrew-700.css";
+@import "@fontsource/assistant/latin-700.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";

@@ -1,0 +1,13 @@
+/* ===== רקע קווי הגובה (components/TopoBackground) ===== */
+.topo { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; direction: ltr; }
+.topo path { fill: none; stroke: var(--contour); }
+
+/* אנימציית כניסה: כל טבעת נמתחת מבפנים החוצה. הקלאס מוסר בסיומה, וכך גם ה-dasharray */
+@media (prefers-reduced-motion: no-preference) {
+  .topo--draw path {
+    stroke-dasharray: 1; stroke-dashoffset: 1;
+    animation: topo-draw .9s cubic-bezier(.2, .7, .2, 1) forwards;
+    animation-delay: calc(var(--ring) * 25ms);
+  }
+}
+@keyframes topo-draw { to { stroke-dashoffset: 0; } }

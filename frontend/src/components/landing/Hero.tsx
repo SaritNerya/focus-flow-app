@@ -1,18 +1,28 @@
 import CtaButtons from "./CtaButtons";
 import { HERO } from "./content";
 
-/** איור באוהאוס: עיגול, ריבוע ומשולש בצבעי היסוד. דקורטיבי בלבד. */
+const RINGS = [150, 122, 96, 72, 50, 30];
+
+/** איור: מפת גובה קטנה עם שביל מקווקו שמטפס לפסגה. דקורטיבי בלבד. */
 function HeroArt() {
-  const line = { stroke: "var(--ink)", strokeWidth: 6, strokeLinejoin: "round" as const };
   return (
     <svg className="landing-hero__art" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      <rect x="0" y="0" width="400" height="320" fill="var(--blue)" />
-      <circle cx="250" cy="140" r="100" fill="var(--yellow)" {...line} />
-      <path d="M250 40 A100 100 0 0 1 350 140 L250 140 Z" fill="var(--red)" {...line} />
-      <rect x="40" y="60" width="110" height="110" fill="var(--red)" {...line} />
-      <rect x="0" y="236" width="400" height="14" fill="var(--ink)" />
-      <polygon points="70,236 135,150 200,236" fill="var(--paper)" {...line} />
-      <circle cx="340" cy="270" r="26" fill="var(--paper)" {...line} />
+      <rect width="400" height="320" fill="var(--surface)" />
+      {RINGS.map((r, i) => (
+        <ellipse
+          key={r}
+          cx={210 + i * 4}
+          cy={150 - i * 3}
+          rx={r * 1.25}
+          ry={r * 0.85}
+          fill="none"
+          stroke="var(--contour)"
+          strokeWidth={i % 3 === 2 ? 1.6 : 1}
+          strokeOpacity={i % 3 === 2 ? 0.6 : 0.3}
+        />
+      ))}
+      <path className="landing-hero__trail" d="M40 300 C90 270 120 240 150 220 S200 190 196 168 S214 140 230 135" />
+      <polygon points="230,112 244,136 216,136" fill="var(--summit)" />
     </svg>
   );
 }

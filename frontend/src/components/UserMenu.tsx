@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { currentTheme, saveTheme, type Theme } from "../theme";
 import type { User } from "../types";
 import Shape from "./Shape";
 
@@ -33,6 +34,13 @@ export default function UserMenu({ user, onLogout }: { user: User; onLogout: () 
     };
   }, [open]);
 
+  const [theme, setTheme] = useState<Theme>(currentTheme);
+  const toggleTheme = () => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    saveTheme(next);
+    setTheme(next);
+  };
+
   const initial = user.display_name.trim().charAt(0).toUpperCase() || "?";
 
   return (
@@ -58,10 +66,15 @@ export default function UserMenu({ user, onLogout }: { user: User; onLogout: () 
             <span>{user.email}</span>
           </div>
           <ul>
-            <li><Link className="menu-item" to="/profile"><Shape kind="circle" color="var(--yellow)" outline />הצגת הפרופיל</Link></li>
-            <li><Link className="menu-item" to="/profile#edit"><Shape kind="square" color="var(--blue)" outline />עדכון פרטים</Link></li>
-            <li><Link className="menu-item danger" to="/profile#delete"><Shape kind="triangle" color="var(--red)" outline />מחיקת חשבון</Link></li>
-            <li className="sep"><button type="button" className="menu-item" onClick={onLogout}>התנתקות</button></li>
+            <li><Link className="menu-item" to="/profile"><Shape kind="circle" color="var(--lake)" />הצגת הפרופיל</Link></li>
+            <li><Link className="menu-item" to="/profile#edit"><Shape kind="square" color="var(--moss)" />עדכון פרטים</Link></li>
+            <li><Link className="menu-item" to="/profile#delete"><Shape kind="triangle" color="var(--summit)" />מחיקת חשבון</Link></li>
+            <li className="sep">
+              <button type="button" className="menu-item" aria-pressed={theme === "dark"} onClick={toggleTheme}>
+                <Shape kind="circle" color="var(--ink)" />מצב לילה
+              </button>
+            </li>
+            <li><button type="button" className="menu-item" onClick={onLogout}>התנתקות</button></li>
           </ul>
         </div>
       )}

@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 
-/** כרטיס "אין כאן עדיין כלום": שלוש הצורות, כותרת והסבר מה עושים עכשיו. */
+/** כרטיס "אין כאן עדיין כלום": פסגה קטנה עם קווי גובה, כותרת והסבר מה עושים עכשיו. */
 export default function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="card empty">
-      <svg viewBox="0 0 120 40" aria-hidden="true" focusable="false">
-        <circle cx="20" cy="20" r="16" fill="var(--red)" stroke="var(--ink)" strokeWidth="2" />
-        <rect x="44" y="4" width="32" height="32" fill="var(--blue)" stroke="var(--ink)" strokeWidth="2" />
-        <polygon points="100,4 118,36 82,36" fill="var(--yellow)" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" />
+      <svg viewBox="0 0 120 56" aria-hidden="true" focusable="false">
+        <ellipse cx="60" cy="38" rx="56" ry="16" fill="none" stroke="var(--line-strong)" strokeWidth="1" />
+        <ellipse cx="60" cy="36" rx="36" ry="10" fill="none" stroke="var(--line-strong)" strokeWidth="1" />
+        <polygon points="60,6 74,32 46,32" fill="var(--summit)" />
       </svg>
       <h3>{title}</h3>
       {children && <p className="muted">{children}</p>}

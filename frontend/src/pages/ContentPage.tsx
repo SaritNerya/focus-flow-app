@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import NotFound from "../components/NotFound";
 import PageHeader from "../components/PageHeader";
 import SessionPanel from "../components/SessionPanel";
+import Shape from "../components/Shape";
 import YouTubePlayer from "../components/YouTubePlayer";
 import type { ContentItem } from "../types";
 
@@ -47,7 +48,12 @@ export default function ContentPage() {
   const info = CONTENT_TYPES[item.type];
   return (
     <>
-      <PageHeader title={item.title} shape={info.shape} color={info.color} subtitle={info.label} back={{ to: "/library", label: "חזרה לספרייה" }} />
+      <PageHeader
+        title={item.title}
+        compact
+        caption={<span className="caption-symbol"><Shape kind={info.shape} color={info.color} />{info.label}</span>}
+        back={{ to: "/library", label: "חזרה לספרייה" }}
+      />
       <div className="content-layout">
         <section className="card viewer" aria-label="תצוגת התוכן">
           {item.type === "youtube" && item.youtube_id && (

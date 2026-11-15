@@ -1,18 +1,19 @@
 export type ShapeKind = "circle" | "square" | "triangle";
 
-/** צורה גאומטרית בסגנון באוהאוס. דקורטיבית בלבד (מוסתרת מקוראי מסך). */
-export default function Shape({ kind, color, outline = false, className }: {
+/**
+ * סמל מפה קטן: ● (circle), — קטע שביל (square), ▲ פסגה (triangle). דקורטיבי בלבד (מוסתר מקוראי מסך).
+ * השמות נשמרו מהעיצוב הקודם כדי שכל הקוראים ימשיכו לעבוד.
+ */
+export default function Shape({ kind, color, className = "" }: {
   kind: ShapeKind;
-  color: string;          // למשל "var(--red)"
-  outline?: boolean;      // קו מתאר שחור סביב הצורה
+  color: string;          // למשל "var(--lake)"
   className?: string;
 }) {
-  const stroke = outline ? { stroke: "var(--ink)", strokeWidth: 1.5 } : {};
   return (
-    <svg viewBox="0 0 20 20" width="1em" height="1em" className={className} aria-hidden="true" focusable="false">
-      {kind === "circle" && <circle cx="10" cy="10" r="9" fill={color} {...stroke} />}
-      {kind === "square" && <rect x="1.5" y="1.5" width="17" height="17" fill={color} {...stroke} />}
-      {kind === "triangle" && <polygon points="10,1.5 19,18.5 1,18.5" fill={color} {...stroke} strokeLinejoin="round" />}
+    <svg viewBox="0 0 20 20" className={`map-symbol ${className}`.trim()} aria-hidden="true" focusable="false">
+      {kind === "circle" && <circle cx="10" cy="10" r="6.5" fill={color} />}
+      {kind === "square" && <rect x="1" y="7.5" width="18" height="5" rx="1" fill={color} />}
+      {kind === "triangle" && <polygon points="10,3 18.5,17 1.5,17" fill={color} />}
     </svg>
   );
 }

@@ -54,13 +54,13 @@ export default function Profile() {
 
 /** כותרת כרטיס עם צורה צבעונית. */
 function CardTitle({ id, shape, color, children }: { id: string; shape: ShapeKind; color: string; children: string }) {
-  return <h2 id={id} className="card-title"><Shape kind={shape} color={color} outline />{children}</h2>;
+  return <h2 id={id} className="card-title"><Shape kind={shape} color={color} />{children}</h2>;
 }
 
 function ProfileDetails({ user }: { user: User }) {
   return (
     <section id="details" className="card" aria-labelledby="details-title">
-      <CardTitle id="details-title" shape="circle" color="var(--yellow)">הפרטים שלי</CardTitle>
+      <CardTitle id="details-title" shape="circle" color="var(--lake)">הפרטים שלי</CardTitle>
       <dl className="details">
         <dt>שם תצוגה</dt>
         <dd>{user.display_name}</dd>
@@ -91,7 +91,7 @@ function DisplayNameForm({ current }: { current: string }) {
 
   return (
     <section id="edit" className="card" aria-labelledby="name-title">
-      <CardTitle id="name-title" shape="square" color="var(--blue)">עדכון שם תצוגה</CardTitle>
+      <CardTitle id="name-title" shape="square" color="var(--moss)">עדכון שם תצוגה</CardTitle>
       <form onSubmit={submit} noValidate>
         <Field label="שם תצוגה חדש" htmlFor="display_name" error={fields.display_name} hint="עד 50 תווים">
           <input id="display_name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="nickname" maxLength={50} required />
@@ -106,7 +106,7 @@ function DisplayNameForm({ current }: { current: string }) {
 function GoogleAccountNote() {
   return (
     <section id="password" className="card" aria-labelledby="password-title">
-      <CardTitle id="password-title" shape="triangle" color="var(--yellow)">סיסמה</CardTitle>
+      <CardTitle id="password-title" shape="triangle" color="var(--ochre)">סיסמה</CardTitle>
       <p className="muted">החשבון שלכם מחובר דרך Google ואין לו סיסמה באתר. ההתחברות נעשית בכפתור "התחברות עם Google".</p>
     </section>
   );
@@ -137,7 +137,7 @@ function PasswordForm() {
 
   return (
     <section id="password" className="card" aria-labelledby="password-title">
-      <CardTitle id="password-title" shape="triangle" color="var(--yellow)">החלפת סיסמה</CardTitle>
+      <CardTitle id="password-title" shape="triangle" color="var(--ochre)">החלפת סיסמה</CardTitle>
       <form onSubmit={submit} noValidate>
         <Field label="סיסמה נוכחית" htmlFor="current_password" error={fields.current_password}>
           <PasswordInput id="current_password" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" required />
@@ -192,8 +192,8 @@ function DeleteAccount({ user, startOpen }: { user: User; startOpen: boolean }) 
   }
 
   return (
-    <section id="delete" className="card danger-zone pop-red wide" aria-labelledby="delete-title">
-      <CardTitle id="delete-title" shape="circle" color="var(--red)">מחיקת חשבון</CardTitle>
+    <section id="delete" className="card danger-zone wide" aria-labelledby="delete-title">
+      <CardTitle id="delete-title" shape="triangle" color="var(--summit)">מחיקת חשבון</CardTitle>
       <p>מחיקת החשבון היא <strong>סופית ואי אפשר לבטל אותה</strong>. יימחקו:</p>
       <ul>
         <li>פרטי החשבון שלכם</li>
@@ -202,7 +202,7 @@ function DeleteAccount({ user, startOpen }: { user: User; startOpen: boolean }) 
       </ul>
 
       {!open ? (
-        <button className="btn danger" type="button" onClick={() => setOpen(true)}>מחיקת החשבון…</button>
+        <button className="btn secondary" type="button" onClick={() => setOpen(true)}>מחיקת החשבון…</button>
       ) : (
         <form onSubmit={submit} noValidate className="confirm-delete">
           {byPassword ? (
@@ -220,7 +220,7 @@ function DeleteAccount({ user, startOpen }: { user: User; startOpen: boolean }) 
           </label>
           <FormStatus error={error} />
           <div className="actions">
-            <button className="btn danger" type="submit" disabled={busy || !understood}>{busy ? "מוחק…" : "כן, למחוק את החשבון לצמיתות"}</button>
+            <button className="btn secondary" type="submit" disabled={busy || !understood}>{busy ? "מוחק…" : "כן, למחוק את החשבון לצמיתות"}</button>
             <button className="btn secondary" type="button" onClick={cancel} disabled={busy}>ביטול</button>
           </div>
         </form>

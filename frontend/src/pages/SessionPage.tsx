@@ -1,7 +1,8 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api, ApiError } from "../api";
 import EmptyState from "../components/EmptyState";
+import Legend, { type LegendRow } from "../components/Legend";
 import Loader from "../components/Loader";
 import NotFound from "../components/NotFound";
 import PageHeader from "../components/PageHeader";
@@ -23,24 +24,27 @@ export default function SessionPage() {
   if (state === "missing") return <NotFound what="הסשן" />;
   if (state === "error" || !s) return <p className="error" role="alert">לא הצלחנו לטעון את הסשן.</p>;
 
-  const stats = [
-    { label: "ציון קשב ממוצע", value: fmtScore(s.average_score), color: isLowScore(s.average_score) ? "var(--red)" : "var(--blue)" },
-    { label: "מדידות", value: s.reading_count, color: "var(--yellow)" },
-    { label: "התחיל", value: fmtDate(s.started_at), color: "var(--ink)" },
+  const low = isLowScore(s.average_score);
+  const stats: LegendRow[] = [
+    {
+      shape: "triangle",
+      color: low ? "var(--summit)" : "var(--moss)",
+      label: "ציון קשב ממוצע",
+      value: fmtScore(s.average_score),
+      sub: low ? "מתחת לסף ההתראה" : undefined,
+    },
+    { shape: "circle", color: "var(--lake)", label: "מדידות", value: s.reading_count },
+    { shape: "square", color: "var(--ochre)", label: "התחיל", value: fmtDate(s.started_at) },
   ];
 
   return (
     <>
-      <PageHeader title={s.content_title ?? "פריט שנמחק"} subtitle="פרטי סשן" back={{ to: "/history", label: "חזרה להיסטוריה" }} />
+      <PageHeader title={s.content_title ?? "פריט שנמחק"} compact caption="יומן מסע · פרטי סשן" back={{ to: "/history", label: "חזרה להיסטוריה" }} />
 
-      <div className="stats">
-        {stats.map((st) => (
-          <div key={st.label} className="stat" style={{ "--stat-color": st.color } as CSSProperties}>
-            <div className="stat__label">{st.label}</div>
-            <div className="stat__value">{st.value}</div>
-          </div>
-        ))}
-      </div>
+      <section className="card session-summary" aria-labelledby="summary-h">
+        <h2 id="summary-h">סיכום</h2>
+        <Legend rows={stats} />
+      </section>
 
       {s.readings.length === 0 ? (
         <EmptyState title="בסשן הזה לא נשמרו מדידות">כדי למדוד קשב צריך להפעיל את המצלמה במהלך הסשן.</EmptyState>
@@ -51,9 +55,9 @@ export default function SessionPage() {
             <tbody>
               {s.readings.map((r, i) => (
                 <tr key={i}>
-                  <td data-label="זמן">{fmtDate(r.created_at)}</td>
-                  <td data-label="מיקום">{r.position}</td>
-                  <td data-label="ציון">{fmtScore(r.score)}</td>
+                  <td data-label="זמן" className="num">{fmtDate(r.created_at)}</td>
+                  <td data-label="מיקום" className="num">{r.position}</td>
+                  <td data-label="ציון" className="num">{fmtScore(r.score)}</td>
                 </tr>
               ))}
             </tbody>

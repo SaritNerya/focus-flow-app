@@ -21,19 +21,19 @@ export const HERO: SectionText = {
 export const HOW_IT_WORKS: SectionText & { steps: ShapedItem[] } = {
   title: "איך זה עובד",
   steps: [
-    { shape: "circle", color: "var(--red)", title: "מוסיפים תוכן", text: "סרטון YouTube, טקסט או דף אינטרנט." },
-    { shape: "square", color: "var(--blue)", title: "מתחילים סשן ומאשרים מצלמה", text: "המצלמה נדלקת רק כשאתם מבקשים." },
-    { shape: "triangle", color: "var(--yellow)", title: "רואים את ציון הקשב", text: "בזמן אמת במהלך הסשן, ואחר כך בהיסטוריה." },
+    { shape: "circle", color: "var(--lake)", title: "מוסיפים תוכן", text: "סרטון YouTube, טקסט או דף אינטרנט." },
+    { shape: "square", color: "var(--moss)", title: "מתחילים סשן ומאשרים מצלמה", text: "המצלמה נדלקת רק כשאתם מבקשים." },
+    { shape: "triangle", color: "var(--summit)", title: "רואים את ציון הקשב", text: "בזמן אמת במהלך הסשן, ואחר כך בהיסטוריה." },
   ],
 };
 
 export const FEATURES: SectionText & { items: ShapedItem[] } = {
   title: "מה מקבלים",
   items: [
-    { shape: "circle", color: "var(--red)", title: "ספרייה אישית", text: "סרטונים, טקסטים ודפי אינטרנט שאתם לומדים מהם, במקום אחד." },
-    { shape: "square", color: "var(--blue)", title: "ציון קשב בין 0 ל-1", text: "מתעדכן כל כמה שניות במהלך הסשן." },
-    { shape: "triangle", color: "var(--yellow)", title: "התראה כשהקשב יורד", text: "כשהציון יורד מתחת לסף, מופיעה תזכורת לחזור לריכוז." },
-    { shape: "square", color: "var(--red)", title: "היסטוריית סשנים", text: "הציון הממוצע של כל סשן והמדידות לאורך התוכן." },
+    { shape: "circle", color: "var(--lake)", title: "ספרייה אישית", text: "סרטונים, טקסטים ודפי אינטרנט שאתם לומדים מהם, במקום אחד." },
+    { shape: "square", color: "var(--moss)", title: "ציון קשב בין 0 ל-1", text: "מתעדכן כל כמה שניות במהלך הסשן." },
+    { shape: "triangle", color: "var(--ochre)", title: "התראה כשהקשב יורד", text: "כשהציון יורד מתחת לסף, מופיעה תזכורת לחזור לריכוז." },
+    { shape: "circle", color: "var(--ink)", title: "היסטוריית סשנים", text: "הציון הממוצע של כל סשן והמדידות לאורך התוכן." },
   ],
 };
 

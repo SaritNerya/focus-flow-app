@@ -4,23 +4,21 @@
 
 .skip-link {
   position: absolute; inset-inline-start: var(--s4); top: -100px; z-index: 100;
-  padding: var(--s2) var(--s4); color: var(--ink); background: var(--yellow); border: var(--bw) solid var(--ink);
+  padding: var(--s2) var(--s4); color: var(--ink); background: var(--surface); border: var(--border); border-radius: var(--radius-btn);
 }
 .skip-link:focus { top: var(--s3); }
 
 /* ---------- כותרת עליונה ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 20;
-  background: var(--surface);
-  border-bottom: 3px solid var(--ink);
+  background: var(--paper-deep);
+  border-bottom: var(--border);
 }
 .header-inner { display: flex; align-items: center; gap: var(--s5); height: var(--header-h); }
 
 .brand { display: inline-flex; align-items: center; gap: var(--s2); color: var(--ink); text-decoration: none; }
-.brand:hover { color: var(--ink); }
-.logo-mark { width: 40px; height: 40px; flex: none; }
-.logo-word { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; direction: ltr; }
-.logo-word b { color: var(--red); font-weight: 800; }
+.logo-mark { width: 34px; height: 34px; flex: none; }
+.logo-word { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; direction: ltr; }
 
 /* ---------- ניווט ראשי (בנייד עובר לסרגל תחתון) ---------- */
 .main-nav { display: flex; gap: var(--s2); flex: 1; height: 100%; }
@@ -28,113 +26,120 @@
   position: relative; display: inline-flex; align-items: center; gap: var(--s2);
   padding-inline: var(--s3); color: var(--ink); font-weight: 600; text-decoration: none;
 }
-.main-nav a::after {
-  content: ""; position: absolute; inset-inline: var(--s3); bottom: -3px; height: 6px;
-  background: var(--nav-color, var(--ink)); transform: scaleX(0); transition: transform .2s var(--ease);
-}
-.main-nav a:hover::after { transform: scaleX(.4); }
+.main-nav a::before { content: "▲"; content: "▲" / ""; font-size: .7em; color: var(--summit); visibility: hidden; }
+.main-nav a::after { content: ""; position: absolute; inset-inline: var(--s3); bottom: -1px; height: 4px; background: var(--ink); transform: scaleX(0); }
+.main-nav a:hover::after { transform: scaleX(.35); }
+.main-nav a.active::before { visibility: visible; }
 .main-nav a.active::after { transform: scaleX(1); }
 
-/* ---------- תפריט משתמש (שמאל למעלה) ---------- */
+/* ---------- תפריט משתמש ---------- */
 .user-menu { position: relative; margin-inline-start: auto; }
 .user-btn {
   display: inline-flex; align-items: center; gap: var(--s2);
   min-height: 44px; padding: .3rem .5rem .3rem .75rem;
-  font: 600 1rem var(--font); color: var(--ink); background: var(--surface);
-  border: var(--bw) solid var(--ink); cursor: pointer;
-  transition: background-color .15s, box-shadow .15s var(--ease), transform .15s var(--ease);
+  font: 600 1rem var(--font-body); color: var(--ink); background: transparent;
+  border: 1.5px solid var(--ink); border-radius: var(--radius-btn); cursor: pointer;
 }
-.user-btn:hover, .user-btn[aria-expanded="true"] { background: var(--yellow-soft); box-shadow: var(--shadow); transform: translate(-2px, -2px); }
+.user-btn:hover, .user-btn[aria-expanded="true"] { background: var(--surface); }
 .user-btn__name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.user-btn__chevron { width: 10px; height: 10px; transition: transform .2s var(--ease); }
+.user-btn__chevron { width: 10px; height: 10px; }
 .user-btn[aria-expanded="true"] .user-btn__chevron { transform: rotate(180deg); }
 
 .avatar {
   display: inline-grid; place-items: center; flex: none;
-  width: 32px; height: 32px; border-radius: 50%;
-  font-weight: 800; color: var(--ink); background: var(--yellow); border: var(--bw) solid var(--ink);
+  width: 30px; height: 30px; border-radius: 50%;
+  font-family: var(--font-display); color: var(--ink); background: var(--surface); border: 1.5px solid var(--ink);
 }
 .avatar.lg { width: 72px; height: 72px; font-size: 2rem; }
 
 .user-dropdown {
   position: absolute; inset-inline-end: 0; top: calc(100% + 10px); z-index: 30;
   width: min(280px, calc(100vw - 2rem));
-  background: var(--surface); border: var(--bw) solid var(--ink); box-shadow: var(--shadow-lg);
-  animation: drop .18s var(--ease);
+  background: var(--surface); border: var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow);
 }
-@keyframes drop { from { opacity: 0; transform: translateY(-6px); } }
-.user-dropdown__head { padding: var(--s4); border-bottom: var(--bw) solid var(--ink); background: var(--paper); }
+.user-dropdown__head { padding: var(--s4); border-bottom: 1px solid var(--line); }
 .user-dropdown__head strong { display: block; }
-.user-dropdown__head span { font-size: .85rem; color: var(--muted); direction: ltr; display: block; text-align: start; overflow-wrap: anywhere; }
+.user-dropdown__head span { display: block; font-size: var(--fs-small); color: var(--ink-soft); direction: ltr; text-align: start; overflow-wrap: anywhere; }
 .user-dropdown ul { list-style: none; margin: 0; padding: var(--s2) 0; }
-.user-dropdown li + li.sep { border-top: 1px solid #d8d2c6; margin-top: var(--s2); padding-top: var(--s2); }
+.user-dropdown li.sep { border-top: 1px solid var(--line); margin-top: var(--s2); padding-top: var(--s2); }
 .menu-item {
   display: flex; align-items: center; gap: var(--s3); width: 100%;
-  padding: .65rem var(--s4); font: 500 1rem var(--font); text-align: start;
+  padding: .6rem var(--s4); font: 500 1rem var(--font-body); text-align: start;
   color: var(--ink); background: none; border: 0; text-decoration: none; cursor: pointer;
 }
-.menu-item:hover, .menu-item:focus-visible { color: var(--ink); background: var(--yellow-soft); outline-offset: -3px; }
-.menu-item.danger { color: var(--red-dark); }
+.menu-item:hover, .menu-item:focus-visible { background: color-mix(in srgb, var(--paper-deep) 60%, transparent); outline-offset: -3px; }
 
 /* ---------- אזור התוכן ---------- */
-.page { padding-block: var(--s6) var(--s7); }
+.page { padding-block: var(--s5) var(--s7); }
 
-.page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s4); margin-bottom: var(--s6); }
-.page-header h1 { display: flex; align-items: center; gap: var(--s3); margin: 0; }
-.page-header h1 svg { width: .7em; height: .7em; flex: none; }
-.page-header p { margin: var(--s2) 0 0; color: var(--muted); }
-.back-link { display: inline-flex; align-items: center; gap: var(--s2); margin-bottom: var(--s3); font-weight: 600; text-decoration: none; }
-.back-link:hover { text-decoration: underline; }
+.page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--s3) var(--s4); margin-bottom: var(--s5); }
+.page-header > div { min-width: 0; }
+.page-header h1 { margin: 0; font-size: clamp(34px, 3.8vw, 52px); line-height: 1; } /* בעמודים פנימיים: כותרת שלא דוחפת את התוכן מתחת לקפל */
+.page-header.compact h1 { font-size: clamp(30px, 3.4vw, 44px); line-height: 1.1; }
+.page-header__caption { display: block; margin-bottom: var(--s1); color: var(--ink-soft); }
+.page-header p { margin: var(--s1) 0 0; color: var(--ink-soft); }
+.back-link { display: inline-flex; align-items: center; gap: var(--s2); margin-bottom: var(--s3); font-weight: 600; }
 
 /* ---------- נייד: הניווט עובר לסרגל תחתון ---------- */
 @media (max-width: 760px) {
   .container { padding-inline: var(--s4); }
   .header-inner { gap: var(--s3); height: 60px; }
-  .logo-word { font-size: 1.15rem; }
   .user-btn__name { display: none; }
 
   .main-nav {
     position: fixed; inset-inline: 0; bottom: 0; z-index: 20;
     height: var(--bottom-nav-h); gap: 0;
-    background: var(--surface); border-top: 3px solid var(--ink);
+    background: var(--paper-deep); border-top: var(--border);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .main-nav a { flex: 1; flex-direction: column; justify-content: center; gap: 2px; font-size: .8rem; }
-  .main-nav a svg { width: 20px; height: 20px; }
-  .main-nav a::after { top: -3px; bottom: auto; }
-  .page { padding-block: var(--s5) calc(var(--bottom-nav-h) + var(--s6)); }
-  .page-header { margin-bottom: var(--s5); }
+  .main-nav a { flex: 1; flex-direction: column; justify-content: center; gap: 0; font-size: .9rem; }
+  .main-nav a::after { top: -1px; bottom: auto; }
+  .page { padding-block: var(--s4) calc(var(--bottom-nav-h) + var(--s6)); }
+  .page-header { margin-bottom: var(--s4); }
 }
 
-/* ---------- מסכי התחברות והרשמה: פוסטר באוהאוס + טופס ---------- */
-.auth-page { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); min-height: 100vh; }
+/* ---------- מסכי התחברות והרשמה: כרטיס על המפה, בלי גלילה ----------
+   במסך רחב הלוגו עומד לצד הכרטיס, ובהרשמה השדות מסודרים בשתי עמודות. */
+.auth-page { display: grid; place-items: center; min-height: 100vh; padding: var(--s4); }
+.auth-main { display: grid; justify-items: center; gap: var(--s4); width: min(520px, 100%); }
+.auth-brand { display: grid; justify-items: center; gap: var(--s1); text-align: center; }
+.auth-brand .logo-mark { width: 44px; height: 44px; }
+.auth-brand .logo-word { font-size: 2rem; }
+.auth-brand p { margin: 0; color: var(--ink); }
+.auth-card { width: 100%; }
+.auth-card h1 { font-size: var(--fs-h2); line-height: 1.1; padding-bottom: var(--s2); margin-bottom: var(--s2); border-bottom: 1px solid var(--line); }
+.auth-card .lead { color: var(--ink-soft); margin-bottom: var(--s4); }
+.auth-card .field { margin-bottom: var(--s3); }
+.auth-card form .btn[type="submit"] { width: 100%; margin-top: var(--s1); }
+.auth-card .divider { margin: var(--s3) 0; }
+.auth-switch { margin: var(--s3) 0 0; text-align: center; }
 
-.auth-art {
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s4);
-  padding: var(--s7); color: #fff; background: var(--blue);
-  border-inline-end: 3px solid var(--ink);
+/* הרשמה: שם+אימייל ואז סיסמה+אימות, זה לצד זה */
+@media (min-width: 560px) {
+  .auth-card form:has(#confirm_password) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s4); }
+  .auth-card form:has(#confirm_password) > * { grid-column: 1 / -1; }
+  .auth-card form:has(#confirm_password) > .field { grid-column: auto; }
 }
-.auth-art svg.poster { position: absolute; inset: 0; width: 100%; height: 100%; }
-.auth-art > :not(svg) { position: relative; }
-.auth-art .logo-word { font-size: 1.6rem; color: #fff; }
-.auth-art .logo-word b { color: var(--yellow); }
-.auth-art h2 { font-size: clamp(2rem, 1.2rem + 3vw, 3.4rem); font-weight: 900; line-height: 1.05; margin: 0; }
-.auth-art p { max-width: 34ch; font-size: 1.1rem; margin: 0; }
+@media (min-width: 900px) {
+  .auth-main { grid-template-columns: auto minmax(0, 520px); align-items: center; gap: var(--s7); width: min(860px, 100%); }
+  .auth-brand .logo-mark { width: 64px; height: 64px; }
+  .auth-brand .logo-word { font-size: 2.6rem; }
+}
+@media (max-width: 559px) {
+  .auth-page { align-items: start; padding: var(--s3); }
+  .auth-main { gap: var(--s3); }
+  .auth-brand { grid-auto-flow: column; align-items: center; gap: var(--s2); }
+  .auth-brand .logo-mark { width: 30px; height: 30px; }
+  .auth-brand .logo-word { font-size: 1.5rem; }
+  .auth-brand p { display: none; }
+  .auth-card { padding: var(--s4); }
+  .auth-card h1 { font-size: var(--fs-h3); }
+  .auth-card .lead { margin-bottom: var(--s3); }
+  .auth-card .field { margin-bottom: var(--s2); }
+}
 
-.auth-main { display: grid; place-items: center; padding: var(--s6) var(--s5); }
-.auth-card { width: min(440px, 100%); }
-.auth-card h1 { font-size: 2rem; }
-.auth-card .lead { color: var(--muted); margin-bottom: var(--s5); }
-.auth-card form .btn[type="submit"] { width: 100%; margin-top: var(--s2); }
-.auth-switch { margin: var(--s5) 0 0; text-align: center; }
-
-@media (max-width: 860px) {
-  .auth-page { grid-template-columns: 1fr; }
-  .auth-art { gap: var(--s2); padding: 0 var(--s5) var(--s5); border-inline-end: 0; border-bottom: 3px solid var(--ink); }
-  .auth-art svg.poster { position: static; width: calc(100% + 2 * var(--s5)); height: 150px; margin-inline: calc(-1 * var(--s5)); margin-bottom: var(--s3); }
-  .auth-art h2 { font-size: 1.8rem; }
-  .auth-art h2 br { display: none; }
-  .auth-art p { display: none; }
-  .auth-main { padding: var(--s5) var(--s4) var(--s7); }
+@media (prefers-reduced-motion: no-preference) {
+  .main-nav a::after { transition: transform .2s var(--ease); }
+  .user-btn { transition: background-color .15s; }
+  .user-btn__chevron { transition: transform .2s var(--ease); }
 }

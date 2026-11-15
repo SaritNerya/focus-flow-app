@@ -28,11 +28,10 @@ export default function Library() {
     <>
       <PageHeader
         title="הספרייה שלי"
-        shape="circle"
-        color="var(--red)"
+        caption="מסלולים"
         subtitle={items ? (count ? `${count} פריטים ללמידה` : "כאן יופיעו הסרטונים והמאמרים שלכם") : undefined}
       >
-        <a href="#add-item" className="btn accent">+ פריט חדש</a>
+        <a href="#add-item" className="btn secondary">+ פריט חדש</a>
       </PageHeader>
 
       <div className="library-layout">
@@ -48,8 +47,8 @@ export default function Library() {
             </EmptyState>
           )}
           {items && items.length > 0 && (
-            <ul className="content-grid">
-              {items.map((it) => <ContentCard key={it.id} item={it} onDeleted={load} onError={setLoadError} />)}
+            <ul className="trail-list stagger">
+              {items.map((it, i) => <TrailRow key={it.id} item={it} index={i} onDeleted={load} onError={setLoadError} />)}
             </ul>
           )}
         </section>
@@ -58,8 +57,7 @@ export default function Library() {
   );
 }
 
-/** טופס הוספת פריט: בחירת סוג באריחים, כותרת ומקור. */
-/** אחרי הוספה מוצלחת עוברים ישר לעמוד הפריט החדש (הוא כבר שמור בספרייה). */
+/** טופס הוספת פריט: בחירת סוג, כותרת ומקור. אחרי הוספה מוצלחת עוברים ישר לעמוד הפריט החדש. */
 function AddItemForm() {
   const nav = useNavigate();
   const [type, setType] = useState<ContentType>("youtube");
@@ -82,7 +80,7 @@ function AddItemForm() {
   }
 
   return (
-    <section id="add-item" className="card library-form pop-yellow" aria-labelledby="add-h">
+    <section id="add-item" className="card library-form" aria-labelledby="add-h">
       <h2 id="add-h">הוספת פריט חדש</h2>
       <form onSubmit={submit} noValidate>
         <fieldset className="type-picker">
@@ -90,9 +88,9 @@ function AddItemForm() {
           {(Object.keys(CONTENT_TYPES) as ContentType[]).map((t) => {
             const info = CONTENT_TYPES[t];
             return (
-              <label key={t} className="type-option" style={{ "--type-soft": info.soft } as CSSProperties}>
+              <label key={t} className="type-option" style={{ "--type-color": info.color } as CSSProperties}>
                 <input type="radio" name="type" value={t} checked={type === t} onChange={() => pickType(t)} className="visually-hidden" />
-                <span className="type-option__tile"><Shape kind={info.shape} color={info.color} outline />{info.label}</span>
+                <span className="type-option__tile"><Shape kind={info.shape} color={info.color} />{info.label}</span>
               </label>
             );
           })}
@@ -105,7 +103,7 @@ function AddItemForm() {
 
         {type === "text" ? (
           <Field label="הטקסט לקריאה" htmlFor="source" error={fields.source} hint="הדביקו כאן מאמר או כל טקסט ארוך">
-            <textarea id="source" rows={6} value={source} onChange={(e) => setSource(e.target.value)} />
+            <textarea id="source" rows={4} value={source} onChange={(e) => setSource(e.target.value)} />
           </Field>
         ) : (
           <Field
@@ -125,8 +123,8 @@ function AddItemForm() {
   );
 }
 
-/** כרטיס פריט: פס צבעוני לפי סוג, כותרת, תאריך, פתיחה ומחיקה עם אישור. */
-function ContentCard({ item, onDeleted, onError }: { item: ContentItem; onDeleted: () => void; onError: (m: string) => void }) {
+/** שורת שביל: נקודה בצבע הסוג, כותרת, סוג ותאריך, פתיחה ומחיקה עם אישור. */
+function TrailRow({ item, index, onDeleted, onError }: { item: ContentItem; index: number; onDeleted: () => void; onError: (m: string) => void }) {
   const info = CONTENT_TYPES[item.type];
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -143,33 +141,31 @@ function ContentCard({ item, onDeleted, onError }: { item: ContentItem; onDelete
   }
 
   return (
-    <li className="content-card" style={{ "--type-color": info.color } as CSSProperties}>
-      <div className="content-card__band">
-        <Shape kind={info.shape} color="var(--surface)" outline />
-      </div>
-      <div className="content-card__body">
-        <Link to={`/content/${item.id}`} className="content-card__title">{item.title}</Link>
-        <div className="content-card__meta">
-          <span className="tag"><Shape kind={info.shape} color={info.color} outline />{info.label}</span>
+    <li className="card lift trail-row" style={{ "--type-color": info.color, "--i": index } as CSSProperties}>
+      <span className="trail-row__dot" aria-hidden="true" />
+      <div className="trail-row__body">
+        <Link to={`/content/${item.id}`} className="trail-row__title">{item.title}</Link>
+        <div className="trail-row__meta mono">
+          <span className="tag"><Shape kind={info.shape} color={info.color} />{info.label}</span>
           <span>{fmtDay(item.created_at)}</span>
         </div>
+      </div>
 
-        <div className="actions">
-          {confirming ? (
-            <div className="confirm-inline" role="group" aria-label="אישור מחיקה">
-              <p>למחוק את הפריט?</p>
-              <div className="actions">
-                <button className="btn danger small" onClick={remove} disabled={busy}>{busy ? "מוחק…" : "כן, מחיקה"}</button>
-                <button className="btn secondary small" onClick={() => setConfirming(false)} disabled={busy}>ביטול</button>
-              </div>
+      <div className="actions trail-row__actions">
+        {confirming ? (
+          <div className="confirm-inline" role="group" aria-label="אישור מחיקה">
+            <p>למחוק את הפריט?</p>
+            <div className="actions">
+              <button className="btn secondary small" onClick={remove} disabled={busy}>{busy ? "מוחק…" : "כן, מחיקה"}</button>
+              <button className="btn secondary small" onClick={() => setConfirming(false)} disabled={busy}>ביטול</button>
             </div>
-          ) : (
-            <>
-              <Link className="btn small" to={`/content/${item.id}`}>פתיחה</Link>
-              <button className="btn secondary small" onClick={() => setConfirming(true)} aria-label={`מחיקת ${item.title}`}>מחיקה</button>
-            </>
-          )}
-        </div>
+          </div>
+        ) : (
+          <>
+            <Link className="btn small" to={`/content/${item.id}`}>פתיחה</Link>
+            <button className="btn secondary small" onClick={() => setConfirming(true)} aria-label={`מחיקת ${item.title}`}>מחיקה</button>
+          </>
+        )}
       </div>
     </li>
   );
